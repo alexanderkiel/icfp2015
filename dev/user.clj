@@ -1,11 +1,11 @@
- (ns user
-   (:require [clojure.core.async :refer [put! close!]]
-             [clojure.pprint :refer [pprint]]
-             [criterium.core :refer [quick-bench]]
-             [loom.graph :as g]
-             [icfp2015.server :as server]
-             [icfp2015.io :refer [read-problem]]
-             [icfp2015.core :refer :all]))
+(ns user
+  (:require [clojure.core.async :refer [put! close!]]
+            [clojure.pprint :refer [pprint]]
+            [criterium.core :refer [quick-bench]]
+            [loom.graph :as g]
+            [icfp2015.server :as server]
+            [icfp2015.io :refer [read-problem]]
+            [icfp2015.core :refer :all]))
 
 (defonce stop (server/start 5011))
 
