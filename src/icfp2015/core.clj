@@ -83,7 +83,7 @@
        (assoc board :units)))
 
 (s/defn lock-units :- Board [board :- Board]
-  (-> (update board :filled #(into % (mapcat :members (:units board))))
+  (-> (update board :filled #(into % (mapcat :members) (:units board)))
       (assoc :units [])))
 
 ;; ---- Graph -----------------------------------------------------------------
