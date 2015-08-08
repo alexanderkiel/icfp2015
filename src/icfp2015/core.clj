@@ -37,10 +37,46 @@
 (s/defn move-south-west :- Unit [unit :- Unit]
   (move c/move-south-west unit))
 
+(defn even01 [x]
+  (cond (even? x) 0 :else 1))
+
+(defn to-abc [[x y]]
+  (let [a (- x (quot (- y (even01 y)) 2))
+        c y
+        b (- (- a) c)
+        ]
+    [a b c])
+  )
+
+(defn from-abc [[a _ c]]
+      [ (+ a (quot (- c (even01 c)) 2)) c]
+  )
+
+(defn local-2-global [[px py] [lx ly]]
+  [(+ (+ px lx) (if (even? py) 0 (if (even? ly) 0 1))) (+ py ly)])
+(defn global-2-local [[px py] [gx gy]]
+  [(+ (- gx px) (if (even? py) 0 (if (even? gy) (- 1) 0))) (- gy py)])
+
+
+(defn rotate-cw-abc [[a b c]]
+  [(- c) (- a) (- b)])
+(defn rotate-ccw-abc [[a b c]]
+  [(- b) (- c) (- a)])
+
+
+(defn turn-members [rotate-fn pivot members]
+  (let [ppos pivot
+        rotated (map (comp #(local-2-global ppos %) from-abc rotate-fn to-abc #(global-2-local ppos %)) members)
+       ]
+    rotated)
+  )
+
 (s/defn turn-cw :- Unit [unit :- Unit]
+  (update unit :members #(turn-members rotate-cw-abc (:pivot unit) %))
   )
 
 (s/defn turn-ccw :- Unit [unit :- Unit]
+  (update unit :members #(turn-members rotate-ccw-abc (:pivot unit) %))
   )
 
 ;; ---- Board -----------------------------------------------------------------
