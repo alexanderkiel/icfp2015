@@ -35,7 +35,18 @@
   (swap! b #(lock-unit %))
 
   ;; Show all childs of first unit
-  (swap! b (fn [b] (update b :units #(into % (childs b (first (:units b)))))))
+  (swap! b (fn [b] (update b :units #(into % (moves b (first (:units b)))))))
 
   )
 
+(comment
+
+  (moves @b (first (:units @b)))
+  (pprint *1)
+
+  (let [g (graph @b (first (:units @b)))]
+    {:nodes (count (g/nodes g))
+     :edges (count (g/edges g))})
+  (pprint *1)
+
+  )

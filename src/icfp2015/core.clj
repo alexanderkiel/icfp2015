@@ -2,7 +2,8 @@
   (:use plumbing.core)
   (:require [schema.core :as s :refer [Int]]
             [icfp2015.cell :as c]
-            [icfp2015.schema :refer :all]))
+            [icfp2015.schema :refer :all]
+            [loom.graph :as g]))
 
 ;; ---- Constructors ----------------------------------------------------------
 
@@ -90,13 +91,29 @@
 
 (defn- valid?
   "Tests if a unit can be placed on the board."
-  [{:keys [filled]} {:keys [members]}]
-  (and (every? c/valid? members)
+  {:arglists '([board unit])}
+  [{:keys [filled] :as board} {:keys [members]}]
+  (and (every? #(c/valid? board %) members)
        (not (some (set members) filled))))
 
-(s/defn childs :- [Unit]
-  "Returns a seq of possible childs of the unit on board."
+(s/defn moves :- [Move]
+  "Returns a seq of possible moves of the unit on the board."
   [board :- Board unit :- Unit]
   (sequence
-    (comp (filter #(valid? board %)) (map #(% unit)))
-    [move-east move-west move-south-east move-south-west]))
+    (comp
+      (map (fn [[cmd move]] [cmd (move unit)]))
+      (filter #(valid? board (second %))))
+    {:e move-east
+     :w move-west
+     :se move-south-east
+     :sw move-south-west}))
+
+(s/defn graph :- Graph [board :- Board unit :- Unit]
+  (loop [g (g/weighted-digraph)
+         units [unit]]
+    (if-let [unit (first units)]
+      (let [moves (moves board unit)]
+        (recur
+          (g/add-edges* g (map (fn [[cmd dst]] [unit dst cmd]) moves))
+          (into (rest units) (remove #(contains? (g/nodes g) %) (map second moves)))))
+      g)))

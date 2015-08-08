@@ -1,6 +1,7 @@
 (ns icfp2015.schema
   "Schemas for things in the game."
-  (:require [schema.core :as s :refer [Int]]))
+  (:require [schema.core :as s :refer [Int]]
+            [loom.graph :as g]))
 
 (def Cell
   [(s/one Int "x")
@@ -9,6 +10,13 @@
 (def Unit
   {:pivot Cell
    :members [Cell]})
+
+(def Cmd
+  (s/enum :e :w :se :sw :cw :ccw))
+
+(def Move
+  [(s/one Cmd "cmd")
+   (s/one Unit "dst")])
 
 (def Board
   {:width Int
@@ -24,3 +32,6 @@
    :filled [Cell]
    :sourceLength Int
    :sourceSeeds [Int]})
+
+(def Graph
+  (s/protocol g/Graph))
