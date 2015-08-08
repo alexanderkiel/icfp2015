@@ -61,17 +61,17 @@
         top-aligned (map #(c/local-2-global top-pivot-pos (c/global-2-local [px py] %)) (:members unit))
         ; then move it to the right place
         min-x (apply min (map first top-aligned))
-        width (inc (- (apply max (map first top-aligned)) min-x))
+        max-x (apply max (map first top-aligned))
+        width (inc (- max-x min-x))
         dx (- (quot (- board-width width) 2) min-x)
         final-pivot-pos [(+ (first top-pivot-pos) dx) (second top-pivot-pos)]
         moved (map #(c/local-2-global final-pivot-pos (c/global-2-local top-pivot-pos %)) top-aligned)
         ]
-    {:pivot final-pivot-pos, :members moved }
-    ;(-> (update unit :pivot (constantly  final-pivot-pos))
-    ;    (update unit :members (constantly moved)))
-    ;)
+    (-> (assoc unit :pivot final-pivot-pos)
+        (assoc :members moved))
     )
   )
+
 
 
 
