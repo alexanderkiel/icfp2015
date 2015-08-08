@@ -33,10 +33,10 @@
 (defn- from-abc [[a _ c]]
   [(+ a (quot (- c (if (even? c) 0 1)) 2)) c])
 
-(defn- global-2-local [[px py] [gx gy]]
+(s/defn global-2-local :- Cell [[px py] :- Cell [gx gy] :- Cell]
   [(+ (- gx px) (if (even? py) 0 (if (even? gy) (- 1) 0))) (- gy py)])
 
-(defn- local-2-global [[px py] [lx ly]]
+(s/defn local-2-global  :- Cell [[px py] :- Cell [lx ly] :- Cell]
   [(+ (+ px lx) (if (even? py) 0 (if (even? ly) 0 1))) (+ py ly)])
 
 (defn- rotate-xf [rotate-fn pivot]
