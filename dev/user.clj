@@ -46,9 +46,10 @@
   (moves @b (first (:units @b)))
   (pprint *1)
 
-  (let [g (graph @b (first (:units @b)))]
-    {:nodes (count (g/nodes g))
-     :edges (count (g/edges g))})
+  (-> (graph @b (first (:units @b)))
+      (g/successors (first (:units @b)))
+      (count))
+
   (pprint *1)
 
   )
