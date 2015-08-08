@@ -3,7 +3,8 @@
   (:require [schema.core :as s :refer [Int]]
             [icfp2015.cell :as c]
             [icfp2015.schema :refer :all]
-            [loom.graph :as g]))
+            [loom.graph :as g]
+            [loom.label :as l]))
 
 ;; ---- Constructors ----------------------------------------------------------
 
@@ -85,8 +86,8 @@
        (vector)
        (assoc board :units)))
 
-(s/defn lock-unit :- Board [board :- Board]
-  (-> (update board :filled #(into % (:members (first (:units board)))))
+(s/defn lock-units :- Board [board :- Board]
+  (-> (update board :filled #(into % (mapcat :members (:units board))))
       (assoc :units [])))
 
 ;; ---- Graph -----------------------------------------------------------------
@@ -112,12 +113,24 @@
      :cw turn-cw
      :ccw turn-ccw}))
 
-(s/defn graph :- Graph [board :- Board unit :- Unit]
-  (loop [g (g/weighted-digraph)
-         units [unit]]
+(s/defn graph :- Graph
+  "Creates a graph of all reachable units from start unit on board."
+  [board :- Board start :- Unit]
+  (loop [g (g/digraph)
+         units [start]]
     (if-let [unit (first units)]
       (let [moves (moves board unit)]
         (recur
-          (g/add-edges* g (map (fn [[cmd dst]] [unit dst cmd]) moves))
+          (->> (mapcat (fn [[cmd dst]] [[unit dst] {:cmd cmd}]) moves)
+               (apply l/add-labeled-edges g))
           (into (rest units) (remove #(contains? (g/nodes g) %) (map second moves)))))
       g)))
+
+(s/defn remove-nodes-xf
+  "Xform which removes all nodes with outgoing edges of cmds."
+  [graph :- Graph & cmds :- [Cmd]]
+  (remove
+    (fn [node]
+      (->> (g/out-edges graph node)
+           (map (fn [edge] (:cmd (apply l/label graph edge))))
+           (some (set cmds))))))
