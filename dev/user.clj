@@ -29,7 +29,7 @@
         nodes (g/nodes g)]
     (->> (into []
            (comp
-             (remove-nodes-xf g :sw :se)
+             (  g :sw :se)
              (take 6))
            nodes)
          (assoc board :units))))
@@ -75,4 +75,13 @@
 
   (pprint *1)
 
+  )
+
+(defn random-gen [seed]
+  (let [iter (fn [x] (mod (+ (* x 1103515245) 12345) 0xFFFFFFFF))]
+    (map #(bit-and (bit-shift-right % 16) 0x7FFFF) (iterate iter seed))
+    ))
+
+(comment
+  (take 10 (random-gen 17))
   )
