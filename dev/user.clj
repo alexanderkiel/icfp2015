@@ -27,7 +27,7 @@
   [board]
   (let [g (graph board (first (:units board)))
         nodes (g/nodes g)]
-    (->> (sequence
+    (->> (into []
            (comp
              (remove-nodes-xf g :sw :se)
              (take 6))
@@ -60,8 +60,8 @@
 
   ;; show neigbors of current unit
   (first (:units @b))
-  (filter-valid-cells @b (unit-neighors (first (:units @b))))
-  (swap! b #(assoc-in % [:units 1] {:pivot [0 0], :members (seq (unit-neighors (first (:units @b))))}))
+  (filter-valid-cells @b (unit-neighbors (first (:units @b))))
+  (swap! b #(assoc-in % [:units 1] {:pivot [0 0], :members (seq (unit-neighbors (first (:units @b))))}))
   (swap! b #(assoc-in % [:units 1] {:pivot [0 0], :members (filter-valid-cells @b (unit-neighors (first (:units @b))))}))
 
   )
