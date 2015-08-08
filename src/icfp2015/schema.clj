@@ -14,7 +14,7 @@
   {:width Int
    :height Int
    :filled [Cell]
-   (s/optional-key :unit) Unit})
+   :units [Unit]})
 
 (def Problem
   {:id Int

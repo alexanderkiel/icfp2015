@@ -28,10 +28,14 @@
   (swap! b #(spawn % (second (:units p0))))
   (swap! b #(spawn % (nth (:units p0) 2)))
   (swap! b #(spawn % (nth (:units p0) 3)))
-  (swap! b #(update % :unit move-east))
-  (swap! b #(update % :unit move-west))
-  (swap! b #(update % :unit move-south-east))
-  (swap! b #(update % :unit move-south-west))
+  (swap! b #(update-in % [:units 0] move-east))
+  (swap! b #(update-in % [:units 0] move-west))
+  (swap! b #(update-in % [:units 0] move-south-east))
+  (swap! b #(update-in % [:units 0] move-south-west))
   (swap! b #(lock-unit %))
 
+  ;; Show all childs of first unit
+  (swap! b (fn [b] (update b :units #(into % (childs b (first (:units b)))))))
+
   )
+

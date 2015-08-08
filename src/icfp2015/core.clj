@@ -17,7 +17,8 @@
   [width :- Int height :- Int & filled :- [Cell]]
   {:width width
    :height height
-   :filled filled})
+   :filled filled
+   :units []})
 
 ;; ---- Commands --------------------------------------------------------------
 
@@ -71,14 +72,31 @@
     (-> (update unit :pivot t)
         (update :members (partial mapv t)))))
 
+(s/defn move-to-spawn-pos :- Unit [board-width :- Int unit :- Unit]
+  (center board-width (align-top unit)))
+
 (s/defn spawn :- Board
   "Spawns a unit centered on top of the board."
   [board :- Board unit :- Unit]
-  (->> unit
-       (align-top)
-       (center (:width board))
-       (assoc board :unit)))
+  (->> (move-to-spawn-pos (:width board) unit)
+       (vector)
+       (assoc board :units)))
 
 (s/defn lock-unit :- Board [board :- Board]
-  (-> (update board :filled #(into % (:members (:unit board))))
-      (dissoc :unit)))
+  (-> (update board :filled #(into % (:members (first (:units board)))))
+      (assoc :units [])))
+
+;; ---- Graph -----------------------------------------------------------------
+
+(defn- valid?
+  "Tests if a unit can be placed on the board."
+  [{:keys [filled]} {:keys [members]}]
+  (and (every? c/valid? members)
+       (not (some (set members) filled))))
+
+(s/defn childs :- [Unit]
+  "Returns a seq of possible childs of the unit on board."
+  [board :- Board unit :- Unit]
+  (sequence
+    (comp (filter #(valid? board %)) (map #(% unit)))
+    [move-east move-west move-south-east move-south-west]))

@@ -1,6 +1,6 @@
 (ns icfp2015.cell
-  (:require [schema.core :as s]
-            [icfp2015.schema :refer [Cell]]))
+  (:require [schema.core :as s :refer [Bool]]
+            [icfp2015.schema :refer [Cell Board]]))
 
 (defn translator
   "Returns a function which translates the cell by dx, dy."
@@ -18,3 +18,8 @@
 
 (s/defn move-south-west :- Cell [[x y] :- Cell]
   [(if (even? y) (dec x) x) (inc y)])
+
+(s/defn valid? :- s/Bool
+  "Tests if a cell has a valid pos on board."
+  [{:keys [width height]} :- Board [x y] :- Cell]
+  (and (< -1 x width) (< -1 y height)))
