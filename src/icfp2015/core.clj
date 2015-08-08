@@ -37,6 +37,11 @@
 (s/defn move-south-west :- Unit [unit :- Unit]
   (move c/move-south-west unit))
 
+;; ---- Board -----------------------------------------------------------------
+
+(defnk problem->board :- Board [width height filled]
+  (apply board width height filled))
+
 (defnk find-min-member-y [members]
   (apply min (map second members)))
 
@@ -59,11 +64,6 @@
         t (c/translator dx 0)]
     (-> (update unit :pivot t)
         (update :members (partial mapv t)))))
-
-;; ---- Board -----------------------------------------------------------------
-
-(defnk problem->board :- Board [width height filled]
-  (apply board width height filled))
 
 (s/defn spawn :- Board
   "Spawns a unit centered on top of the board."
