@@ -47,7 +47,7 @@
   (pprint *1)
 
   (-> (graph @b (first (:units @b)))
-      (g/successors (first (:units @b)))
+      (g/edges)
       (count))
 
   (pprint *1)

@@ -106,7 +106,9 @@
     {:e move-east
      :w move-west
      :se move-south-east
-     :sw move-south-west}))
+     :sw move-south-west
+     :cw turn-cw
+     :ccw turn-ccw}))
 
 (s/defn graph :- Graph [board :- Board unit :- Unit]
   (loop [g (g/weighted-digraph)
