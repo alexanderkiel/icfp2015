@@ -1,7 +1,7 @@
 (ns icfp2015.server
   "A websocket server for the visualisation."
-  (:require [clojure.core.async :refer [<! >! chan put! close! go go-loop]]
-            [clojure.tools.logging :refer [debug]]
+  (:require [clojure.core.async :refer [<! >! chan put! close! alts! go-loop]]
+            [clojure.tools.logging :refer [info debug]]
             [org.httpkit.server :refer [run-server]]
             [chord.http-kit :refer [with-channel]]))
 
@@ -12,20 +12,18 @@
   (with-channel req ws-ch
     (go-loop []
       (debug "Wait for msg from ch...")
-      (if-let [msg (<! ch)]
-        (do
-          (debug "Send" msg)
-          (>! ws-ch msg)
-          (recur))
-        (do
-          (debug "Close ws")
-          (close! ws-ch))))))
+      (let [[msg port] (alts! [ws-ch ch])]
+        (if msg
+          (do (condp = port
+                ch
+                (do (debug "Send" msg)
+                    (>! ws-ch msg))
+                ws-ch
+                (debug "Skip client msg" msg))
+              (recur))
+          (do (debug "Close ws")
+              (close! ws-ch)))))))
 
-(def stop (run-server handler {:port 5011}))
-
-(comment (stop))
-
-(comment
-  (put! ch "hi2")
-  (close! ch)
-  )
+(defn start [port]
+  (info "Start ws server on port" port)
+  (run-server handler {:port port}))
