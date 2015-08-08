@@ -18,11 +18,15 @@
   [(s/one Cmd "cmd")
    (s/one Unit "dst")])
 
+(def Graph
+  (s/protocol g/Graph))
+
 (def Board
   {:width Int
    :height Int
    :filled (s/pred set?)
-   :units [Unit]})
+   :units [Unit]
+   :graphs {Unit Graph}})
 
 (def Problem
   {:id Int
@@ -32,6 +36,3 @@
    :filled [Cell]
    :sourceLength Int
    :sourceSeeds [Int]})
-
-(def Graph
-  (s/protocol g/Graph))

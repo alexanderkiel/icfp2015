@@ -55,9 +55,6 @@
 
 ;; ---- Board -----------------------------------------------------------------
 
-(defnk problem->board :- Board [width height filled]
-  (apply board width height filled))
-
 (defnk find-min-member-y [members]
   (apply min (map second members)))
 
@@ -143,3 +140,9 @@
       (->> (g/out-edges graph node)
            (map (fn [edge] (:cmd (apply l/label graph edge))))
            (some (set cmds))))))
+
+;; ---- Problem ---------------------------------------------------------------
+
+(defnk problem->board :- Board [width height filled]
+  (-> (apply board width height filled)
+      (assoc :graphs )))
