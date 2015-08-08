@@ -37,6 +37,12 @@
 (s/defn move-south-west :- Unit [unit :- Unit]
   (move c/move-south-west unit))
 
+(s/defn turn-cw :- Unit [unit :- Unit]
+  )
+
+(s/defn turn-ccw :- Unit [unit :- Unit]
+  )
+
 ;; ---- Board -----------------------------------------------------------------
 
 (defnk problem->board :- Board [width height filled]
