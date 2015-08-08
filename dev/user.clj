@@ -3,7 +3,6 @@
             [clojure.pprint :refer [pprint]]
             [criterium.core :refer [quick-bench]]
             [loom.graph :as g]
-            [icfp2015.cell :as c]
             [icfp2015.server :as server]
             [icfp2015.io :refer [read-problem]]
             [icfp2015.core :refer :all]))
@@ -37,11 +36,19 @@
   (swap! b #(update % :unit turn-ccw))
   (swap! b #(lock-unit %))
 
-  (to-abc [1 2])
-  (map (c/translator (- 1) (- 1)) [[1 1], [2 3]])
+  ;; Show all childs of first unit
+  (swap! b (fn [b] (update b :units #(into % (moves b (first (:units b)))))))
 
-  (turn-members rotate-cw-abc [1 1] [[2 1], [0 1]])
+  )
 
-  second (:units p0)
-  (nth (:units p0) 3)
+(comment
+
+  (moves @b (first (:units @b)))
+  (pprint *1)
+
+  (let [g (graph @b (first (:units @b)))]
+    {:nodes (count (g/nodes g))
+     :edges (count (g/edges g))})
+  (pprint *1)
+
   )

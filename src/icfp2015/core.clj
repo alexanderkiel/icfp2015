@@ -2,7 +2,8 @@
   (:use plumbing.core)
   (:require [schema.core :as s :refer [Int]]
             [icfp2015.cell :as c]
-            [icfp2015.schema :refer :all]))
+            [icfp2015.schema :refer :all]
+            [loom.graph :as g]))
 
 ;; ---- Constructors ----------------------------------------------------------
 
@@ -17,7 +18,8 @@
   [width :- Int height :- Int & filled :- [Cell]]
   {:width width
    :height height
-   :filled filled})
+   :filled filled
+   :units []})
 
 ;; ---- Commands --------------------------------------------------------------
 
@@ -107,14 +109,47 @@
     (-> (update unit :pivot t)
         (update :members (partial mapv t)))))
 
+(s/defn move-to-spawn-pos :- Unit [board-width :- Int unit :- Unit]
+  (center board-width (align-top unit)))
+
 (s/defn spawn :- Board
   "Spawns a unit centered on top of the board."
   [board :- Board unit :- Unit]
-  (->> unit
-       (align-top)
-       (center (:width board))
-       (assoc board :unit)))
+  (->> (move-to-spawn-pos (:width board) unit)
+       (vector)
+       (assoc board :units)))
 
 (s/defn lock-unit :- Board [board :- Board]
-  (-> (update board :filled #(into % (:members (:unit board))))
-      (dissoc :unit)))
+  (-> (update board :filled #(into % (:members (first (:units board)))))
+      (assoc :units [])))
+
+;; ---- Graph -----------------------------------------------------------------
+
+(defn- valid?
+  "Tests if a unit can be placed on the board."
+  {:arglists '([board unit])}
+  [{:keys [filled] :as board} {:keys [members]}]
+  (and (every? #(c/valid? board %) members)
+       (not (some (set members) filled))))
+
+(s/defn moves :- [Move]
+  "Returns a seq of possible moves of the unit on the board."
+  [board :- Board unit :- Unit]
+  (sequence
+    (comp
+      (map (fn [[cmd move]] [cmd (move unit)]))
+      (filter #(valid? board (second %))))
+    {:e move-east
+     :w move-west
+     :se move-south-east
+     :sw move-south-west}))
+
+(s/defn graph :- Graph [board :- Board unit :- Unit]
+  (loop [g (g/weighted-digraph)
+         units [unit]]
+    (if-let [unit (first units)]
+      (let [moves (moves board unit)]
+        (recur
+          (g/add-edges* g (map (fn [[cmd dst]] [unit dst cmd]) moves))
+          (into (rest units) (remove #(contains? (g/nodes g) %) (map second moves)))))
+      g)))
