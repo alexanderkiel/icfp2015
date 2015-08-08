@@ -11,7 +11,16 @@
    :members [Cell]})
 
 (def Board
-  {:width s/Int
-   :height s/Int
+  {:width Int
+   :height Int
    :filled [Cell]
    (s/optional-key :unit) Unit})
+
+(def Problem
+  {:id Int
+   :units [Unit]
+   :width Int
+   :height Int
+   :filled [Cell]
+   :sourceLength Int
+   :sourceSeeds [Int]})

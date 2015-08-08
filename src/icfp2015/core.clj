@@ -1,6 +1,7 @@
 (ns icfp2015.core
   (:use plumbing.core)
   (:require [schema.core :as s :refer [Int]]
+            [icfp2015.cell :as c]
             [icfp2015.schema :refer :all]))
 
 ;; ---- Constructors ----------------------------------------------------------
@@ -20,23 +21,28 @@
 
 ;; ---- Commands --------------------------------------------------------------
 
-(defn- cell-move-east [cell]
-  (update cell 0 dec))
+(defn- move [dir unit]
+  (-> (update unit :pivot dir)
+      (update :members (partial mapv dir))))
 
-(defn- cell-translator [dx dy]
-  (fn [[x y]] [(+ x dx) (+ y dy)]))
+(s/defn move-east :- Unit [unit :- Unit]
+  (move c/move-east unit))
 
-(s/defn move-east :- Unit
-  [unit :- Unit]
-  (-> (update unit :pivot cell-move-east)
-      (update :members (partial mapv cell-move-east))))
+(s/defn move-west :- Unit [unit :- Unit]
+  (move c/move-west unit))
+
+(s/defn move-south-east :- Unit [unit :- Unit]
+  (move c/move-south-east unit))
+
+(s/defn move-south-west :- Unit [unit :- Unit]
+  (move c/move-south-west unit))
 
 (defnk find-min-member-y [members]
   (apply min (map second members)))
 
 (defn- align-top [unit]
   (let [dy (find-min-member-y unit)
-        t (cell-translator 0 (- dy))]
+        t (c/translator 0 (- dy))]
     (-> (update unit :pivot t)
         (update :members (partial mapv t)))))
 
@@ -50,9 +56,14 @@
   (let [min-x (find-min-member-x unit)
         width (inc (- (find-max-member-x unit) min-x))
         dx (- (quot (- board-width width) 2) min-x)
-        t (cell-translator dx 0)]
+        t (c/translator dx 0)]
     (-> (update unit :pivot t)
         (update :members (partial mapv t)))))
+
+;; ---- Board -----------------------------------------------------------------
+
+(defnk problem->board :- Board [width height filled]
+  (apply board width height filled))
 
 (s/defn spawn :- Board
   "Spawns a unit centered on top of the board."
@@ -61,3 +72,7 @@
        (align-top)
        (center (:width board))
        (assoc board :unit)))
+
+(s/defn lock-unit :- Board [board :- Board]
+  (-> (update board :filled #(into % (:members (:unit board))))
+      (dissoc :unit)))
