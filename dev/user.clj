@@ -28,7 +28,7 @@
   (swap! b #(spawn % (second (:units p0))))
   (swap! b #(spawn % (nth (:units p0) 2)))
   (swap! b #(spawn % (nth (:units p0) 3)))
-  (swap! b #(spawn % (nth (:units p0) 18)))
+  (swap! b #(spawn % (nth (:units p0) 17)))
   (swap! b #(spawn % {:members [[0 1] [1 2]], :pivot [0 1]}))
   (swap! b #(update-in % [:units 0] move-east))
   (swap! b #(update-in % [:units 0] move-west))
@@ -40,6 +40,9 @@
 
   ;; Show all childs of first unit
   (swap! b (fn [b] (update b :units #(into % (moves b (first (:units b)))))))
+  (first (:units @b))
+  (unit-neighors (first (:units @b)))
+  (swap! b #(assoc-in % [:units 1] {:pivot [0 0], :members (seq (unit-neighors (first (:units @b))))}))
 
   )
 

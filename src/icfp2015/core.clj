@@ -45,6 +45,11 @@
 (s/defn turn-ccw :- Unit [unit :- Unit]
   (update unit :members (partial into [] (c/rotate-ccw-xf (:pivot unit)))))
 
+;; ---- Unit ------------------------------------------------------------------
+
+(s/defn unit-neighors [unit :- Unit]
+  (set (apply concat (map c/neighbors (:members unit)))))
+
 ;; ---- Board -----------------------------------------------------------------
 
 (defnk problem->board :- Board [width height filled]
@@ -71,8 +76,6 @@
         (assoc :members moved))
     )
   )
-
-
 
 
 (s/defn spawn :- Board
