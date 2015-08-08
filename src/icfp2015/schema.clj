@@ -21,7 +21,7 @@
 (def Board
   {:width Int
    :height Int
-   :filled [Cell]
+   :filled (s/pred set?)
    :units [Unit]})
 
 (def Problem
