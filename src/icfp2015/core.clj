@@ -19,7 +19,7 @@
   [width :- Int height :- Int & filled :- [Cell]]
   {:width width
    :height height
-   :filled filled
+   :filled (set filled)
    :units []})
 
 ;; ---- Commands --------------------------------------------------------------
