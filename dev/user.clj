@@ -22,6 +22,18 @@
 (def b (atom {}))
 (add-watch b :send (fn [_ _ _ b] (put! server/ch b)))
 
+(defn find-bottom-nodes
+  "Finds six bottom nodes of board starting with first unit."
+  [board]
+  (let [g (graph board (first (:units board)))
+        nodes (g/nodes g)]
+    (->> (sequence
+           (comp
+             (remove-nodes-xf g :sw :se)
+             (take 6))
+           nodes)
+         (assoc board :units))))
+
 (comment
   (def p0 (read-problem "problems/problem_0.json"))
   (reset! b (problem->board p0))
@@ -32,13 +44,16 @@
   (swap! b #(spawn % (nth (:units p0) 3)))
   (swap! b #(spawn % (nth (:units p0) 18)))
   (swap! b #(spawn % {:members [[0 1] [1 2]], :pivot [0 1]}))
+
   (swap! b #(update-in % [:units 0] move-east))
   (swap! b #(update-in % [:units 0] move-west))
   (swap! b #(update-in % [:units 0] move-south-east))
   (swap! b #(update-in % [:units 0] move-south-west))
   (swap! b #(update-in % [:units 0] turn-cw))
   (swap! b #(update-in % [:units 0] turn-ccw))
-  (swap! b #(lock-unit %))
+
+  (swap! b find-bottom-nodes)
+  (swap! b lock-units)
 
   ;; Show all childs of first unit
   (swap! b (fn [b] (update b :units #(into % (moves b (first (:units b)))))))
@@ -50,15 +65,7 @@
   (moves @b (first (:units @b)))
   (pprint *1)
 
-  (let [g (graph @b (first (:units @b)))
-        nodes (g/nodes g)]
-    (->> (sequence
-           (comp
-             (remove-nodes-xf g :sw :se)
-             (take 6))
-           nodes)
-         (assoc @b :units)
-         (reset! b)))
+
 
   (pprint *1)
 
