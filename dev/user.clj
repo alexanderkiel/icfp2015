@@ -60,8 +60,9 @@
 
   ;; show neigbors of current unit
   (first (:units @b))
-  (unit-neighbors (first (:units @b)))
-  (swap! b #(assoc-in % [:units 1] {:pivot [0 0], :members (seq (unit-neighbors (first (:units @b))))}))
+  (filter-valid-cells @b (unit-neighors (first (:units @b))))
+  (swap! b #(assoc-in % [:units 1] {:pivot [0 0], :members (seq (unit-neighors (first (:units @b))))}))
+  (swap! b #(assoc-in % [:units 1] {:pivot [0 0], :members (filter-valid-cells @b (unit-neighors (first (:units @b))))}))
 
   )
 

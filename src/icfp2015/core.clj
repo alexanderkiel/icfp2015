@@ -18,10 +18,10 @@
 (s/defn board :- Board
   "Creates a board."
   [width :- Int height :- Int & filled :- [Cell]]
-  {:width width
+  {:width  width
    :height height
    :filled (set filled)
-   :units []})
+   :units  []})
 
 ;; ---- Commands --------------------------------------------------------------
 
@@ -87,6 +87,17 @@
 (s/defn lock-units :- Board [board :- Board]
   (-> (update board :filled #(into % (mapcat :members) (:units board)))
       (assoc :units [])))
+
+
+(s/defn valid-cell? ;- Bool
+    "Tests if a cell is a valid (unfilled) cell."
+    [{:keys [filled] :as board} cell]
+    (and (c/valid? board cell)
+         (not (contains? filled cell))))
+
+(s/defn filter-valid-cells
+  [board :- Board cells :- [Cell]]
+  (filterv #(valid-cell? board %) cells))
 
 ;; ---- Graph -----------------------------------------------------------------
 
