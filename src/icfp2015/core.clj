@@ -71,13 +71,9 @@
         width (inc (- max-x min-x))
         dx (- (quot (- board-width width) 2) min-x)
         final-pivot-pos [(+ (first top-pivot-pos) dx) (second top-pivot-pos)]
-        moved (map #(c/local-2-global final-pivot-pos (c/global-2-local top-pivot-pos %)) top-aligned)
-        ]
+        moved (map #(c/local-2-global final-pivot-pos (c/global-2-local top-pivot-pos %)) top-aligned)]
     (-> (assoc unit :pivot final-pivot-pos)
-        (assoc :members moved))
-    )
-  )
-
+        (assoc :members moved))))
 
 (s/defn spawn :- Board
   "Spawns a unit centered on top of the board."
