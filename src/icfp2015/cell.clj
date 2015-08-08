@@ -54,11 +54,17 @@
   [(- b) (- c) (- a)])
 
 (s/defn rotate-cw-xf
-  "Returns a xform which rotates cells clockwise round the pivot point."
+  "Returns a xform which rotates cells clockwise around the pivot point."
   [pivot :- Cell]
   (rotate-xf rotate-cw-abc pivot))
 
 (s/defn rotate-ccw-xf
-  "Returns a xform which rotates cells clockwise round the pivot point."
+  "Returns a xform which rotates cells clockwise around the pivot point."
   [pivot :- Cell]
   (rotate-xf rotate-ccw-abc pivot))
+
+(s/defn neighbors :- [Cell]
+  [ [x y] :- Cell ]
+  (let [oddeven (if (even? y) (- 1) 1)]
+    [[(- x 1) y] [(+ x 1) y] [x (- y 1)] [x (+ y 1)] [(+ x oddeven) (+ y 1)] [(+ x oddeven) (- y 1)]]))
+
