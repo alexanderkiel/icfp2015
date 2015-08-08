@@ -48,8 +48,8 @@
 
 ;; ---- Unit ------------------------------------------------------------------
 
-(s/defn unit-neighors [unit :- Unit]
-  (set (apply concat (map c/neighbors (:members unit)))))
+(s/defn unit-neighbors [unit :- Unit]
+  (into #{} (mapcat c/neighbors) (:members unit)))
 
 ;; ---- Board -----------------------------------------------------------------
 
