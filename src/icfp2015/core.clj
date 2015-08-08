@@ -1,6 +1,7 @@
 (ns icfp2015.core
   (:use plumbing.core)
-  (:require [schema.core :as s :refer [Int]]
+  (:require [clojure.set :as set]
+            [schema.core :as s :refer [Int]]
             [icfp2015.cell :as c]
             [icfp2015.schema :refer :all]
             [loom.graph :as g]
@@ -49,7 +50,8 @@
 ;; ---- Unit ------------------------------------------------------------------
 
 (s/defn unit-neighbors [unit :- Unit]
-  (into #{} (mapcat c/neighbors) (:members unit)))
+  (set/difference (into #{} (mapcat c/neighbors) (:members unit))
+                  (set (:members unit))))
 
 ;; ---- Board -----------------------------------------------------------------
 
