@@ -39,25 +39,25 @@
 (deftest moves-test
   (testing "All moves are possible"
     (given (moves (board 3 3) (unit [1 0] [1 0]))
-      identity :< [[:w (unit [0 0] [0 0])]
-                   [:e (unit [2 0] [2 0])]
-                   [:sw (unit [0 1] [0 1])]
-                   [:se (unit [1 1] [1 1])]]))
+      set := #{[:w (unit [0 0] [0 0])]
+               [:e (unit [2 0] [2 0])]
+               [:sw (unit [0 1] [0 1])]
+               [:se (unit [1 1] [1 1])]}))
   (testing "Only east moves are possible"
     (given (moves (board 3 3) (unit [0 0] [0 0]))
-      identity :< [[:e (unit [1 0] [1 0])]
-                   [:se (unit [0 1] [0 1])]])))
+      set := #{[:e (unit [1 0] [1 0])]
+               [:se (unit [0 1] [0 1])]})))
 
 (deftest graph-test
   (given (graph (board 2 2) (unit [0 0] [0 0]))
-    g/nodes :< [(unit [0 0] [0 0])
-                (unit [1 0] [1 0])
-                (unit [0 1] [0 1])
-                (unit [1 1] [1 1])]
-    g/edges :> [[(unit [0 0] [0 0]) (unit [1 0] [1 0])]
-                [(unit [0 0] [0 0]) (unit [0 1] [0 1])]
-                [(unit [1 0] [1 0]) (unit [0 0] [0 0])]
-                [(unit [1 0] [1 0]) (unit [0 1] [0 1])]
-                [(unit [1 0] [1 0]) (unit [1 1] [1 1])]
-                [(unit [0 1] [0 1]) (unit [1 1] [1 1])]
-                [(unit [1 1] [1 1]) (unit [0 1] [0 1])]]))
+    [g/nodes set] := #{(unit [0 0] [0 0])
+                       (unit [1 0] [1 0])
+                       (unit [0 1] [0 1])
+                       (unit [1 1] [1 1])}
+    [g/edges set] := #{[(unit [0 0] [0 0]) (unit [1 0] [1 0])]
+                       [(unit [0 0] [0 0]) (unit [0 1] [0 1])]
+                       [(unit [1 0] [1 0]) (unit [0 0] [0 0])]
+                       [(unit [1 0] [1 0]) (unit [0 1] [0 1])]
+                       [(unit [1 0] [1 0]) (unit [1 1] [1 1])]
+                       [(unit [0 1] [0 1]) (unit [1 1] [1 1])]
+                       [(unit [1 1] [1 1]) (unit [0 1] [0 1])]}))
