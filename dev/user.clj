@@ -28,6 +28,8 @@
   (swap! b #(spawn % (second (:units p0))))
   (swap! b #(spawn % (nth (:units p0) 2)))
   (swap! b #(spawn % (nth (:units p0) 3)))
+  (swap! b #(spawn % (nth (:units p0) 18)))
+  (swap! b #(spawn % {:members [[0 1] [1 2]], :pivot [0 1]}))
   (swap! b #(update-in % [:units 0] move-east))
   (swap! b #(update-in % [:units 0] move-west))
   (swap! b #(update-in % [:units 0] move-south-east))

@@ -53,28 +53,27 @@
 (defnk find-min-member-y [members]
   (apply min (map second members)))
 
-(defn- align-top [unit]
-  (let [dy (find-min-member-y unit)
-        t (c/translator 0 (- dy))]
-    (-> (update unit :pivot t)
-        (update :members (partial mapv t)))))
-
-(defnk find-min-member-x [members]
-  (apply min (map first members)))
-
-(defnk find-max-member-x [members]
-  (apply max (map first members)))
-
-(defn- center [board-width unit]
-  (let [min-x (find-min-member-x unit)
-        width (inc (- (find-max-member-x unit) min-x))
-        dx (- (quot (- board-width width) 2) min-x)
-        t (c/translator dx 0)]
-    (-> (update unit :pivot t)
-        (update :members (partial mapv t)))))
-
 (s/defn move-to-spawn-pos :- Unit [board-width :- Int unit :- Unit]
-  (center board-width (align-top unit)))
+  (let [dy (find-min-member-y unit)
+        [px py] (:pivot unit)
+        ; first move the thing up
+        top-pivot-pos [px (- py dy)]
+        top-aligned (map #(c/local-2-global top-pivot-pos (c/global-2-local [px py] %)) (:members unit))
+        ; then move it to the right place
+        min-x (apply min (map first top-aligned))
+        width (inc (- (apply max (map first top-aligned)) min-x))
+        dx (- (quot (- board-width width) 2) min-x)
+        final-pivot-pos [(+ (first top-pivot-pos) dx) (second top-pivot-pos)]
+        moved (map #(c/local-2-global final-pivot-pos (c/global-2-local top-pivot-pos %)) top-aligned)
+        ]
+    {:pivot final-pivot-pos, :members moved }
+    ;(-> (update unit :pivot (constantly  final-pivot-pos))
+    ;    (update unit :members (constantly moved)))
+    ;)
+    )
+  )
+
+
 
 (s/defn spawn :- Board
   "Spawns a unit centered on top of the board."
