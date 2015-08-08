@@ -1,8 +1,10 @@
 (ns user
+  (:use plumbing.core)
   (:require [clojure.core.async :refer [put! close!]]
             [clojure.pprint :refer [pprint]]
             [criterium.core :refer [quick-bench]]
             [loom.graph :as g]
+            [loom.label :as l]
             [icfp2015.server :as server]
             [icfp2015.io :refer [read-problem]]
             [icfp2015.core :refer :all]))
@@ -48,9 +50,15 @@
   (moves @b (first (:units @b)))
   (pprint *1)
 
-  (-> (graph @b (first (:units @b)))
-      (g/edges)
-      (count))
+  (let [g (graph @b (first (:units @b)))
+        nodes (g/nodes g)]
+    (->> (sequence
+           (comp
+             (remove-nodes-xf g :sw :se)
+             (take 6))
+           nodes)
+         (assoc @b :units)
+         (reset! b)))
 
   (pprint *1)
 
