@@ -39,15 +39,11 @@
 (s/defn move-south-west :- Unit [unit :- Unit]
   (move c/move-south-west unit))
 
-(defn turn-members [rotate-fn pivot members]
-  (map (comp #(c/local-2-global pivot %) c/from-abc rotate-fn c/to-abc #(c/global-2-local pivot %)) members)
-  )
-
 (s/defn turn-cw :- Unit [unit :- Unit]
-  (update unit :members #(turn-members c/rotate-cw-abc (:pivot unit) %)))
+  (update unit :members (partial into [] (c/rotate-cw-xf (:pivot unit)))))
 
 (s/defn turn-ccw :- Unit [unit :- Unit]
-  (update unit :members #(turn-members c/rotate-ccw-abc (:pivot unit) %)))
+  (update unit :members (partial into [] (c/rotate-ccw-xf (:pivot unit)))))
 
 ;; ---- Board -----------------------------------------------------------------
 
