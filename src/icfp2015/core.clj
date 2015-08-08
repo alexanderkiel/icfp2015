@@ -53,6 +53,18 @@
   (set/difference (into #{} (mapcat c/neighbors) (:members unit))
                   (set (:members unit))))
 
+;; ---- RNG -------------------------------------------------------------------
+
+(defn- lcg [a c m]
+  (fn [x] (mod (+ (* a x) c) m)))
+
+(defn- to-random-num [seed]
+  (bit-and (bit-shift-right seed 16) 0x7FFF))
+
+(defn rng [seed]
+  (let [iter (lcg 1103515245 12345 (bit-shift-left 1 32))]
+    (map to-random-num (iterate iter seed))))
+
 ;; ---- Board -----------------------------------------------------------------
 
 (defnk find-min-member-y [members]
