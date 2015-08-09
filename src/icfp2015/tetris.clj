@@ -1,6 +1,6 @@
 (ns icfp2015.tetris
   (:use plumbing.core)
-  (:require [clojure.set :as set]
+  (:require [clojure.tools.logging :as log]
             [schema.core :as s :refer [Bool Int]]
             [icfp2015.schema :refer :all]
             [icfp2015.cell :as c]
@@ -60,8 +60,9 @@
 
 (s/defn naive-placement :- Unit
   "Locks unit in a first good naive end position."
-  [{:keys [board graphs]} :- Game unit :- Unit]
-  (let [graph (graphs unit)
+  [{:keys [board graphs] :as game} :- Game unit :- Unit]
+  (let [nodes-to-prune (nodes-to-prune game unit)
+        graph (apply g/remove-nodes (graphs unit) nodes-to-prune)
         nodes (g/nodes graph)
         first-good-xf
         (comp

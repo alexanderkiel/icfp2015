@@ -12,6 +12,7 @@
   </appender>
 
   <logger name="icfp2015.server" level="debug"/>
+  <logger name="icfp2015.tetris" level="debug"/>
 
   <root level="info">
     <appender-ref ref="STDOUT"/>

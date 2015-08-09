@@ -58,6 +58,9 @@
 
   )
 
+(defn- timed [f]
+  (fn [& args] (time (apply f args))))
+
 ;; ---- Game ------------------------------------------------------------------
 
 (def game (atom {}))
@@ -67,7 +70,7 @@
   :ok)
 
 (defn step-game! []
-  (swap! game (partial step naive-placement))
+  (swap! game (partial step (timed naive-placement)))
   :ok)
 
 (defn step-game2! []
@@ -87,5 +90,6 @@
 
   (count (:unit-stack @game))
   (:board @game)
+  (nodes-to-prune @game (first (:unit-stack @game)))
 
 )

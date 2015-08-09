@@ -174,6 +174,11 @@
            (map (fn [edge] (:cmd (apply l/label graph edge))))
            (some (set cmds))))))
 
+(s/defn nodes-to-prune :- [Unit] [game :- Game unit :- Unit]
+  (let [filled (:filled (:board game))
+        node-index ((:node-indices game) unit)]
+    (mapcat node-index filled)))
+
 ;; ---- Problem ---------------------------------------------------------------
 
 (defnk problem->board :- Board [width height filled]
