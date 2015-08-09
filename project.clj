@@ -15,4 +15,5 @@
              {:source-paths ["dev"]
               :dependencies [[org.clojure/tools.namespace "0.2.4"]
                              [criterium "0.4.3"]
-                             [juxt/iota "0.1.2"]]}})
+                             [juxt/iota "0.1.2"]]
+              :global-vars {*print-length* 10}}})

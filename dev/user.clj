@@ -22,7 +22,7 @@
         nodes (g/nodes g)]
     (->> (into []
            (comp
-             (remove-nodes-xf  g :sw :se)
+             (remove-nodes-xf g :sw :se)
              (take 6))
            nodes)
          (assoc board :units))))
