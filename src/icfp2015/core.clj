@@ -102,18 +102,18 @@
     (and (c/valid? board cell)
          (not (contains? filled cell))))
 
-(s/defn filter-valid-cells
+(s/defn filter-valid-cells :- [Cell]
   [board :- Board cells :- [Cell]]
-  (filterv #(valid-cell? board %) cells))
-
+  (filter #(valid-cell? board %) cells))
 
 ;; ---- Unit ------------------------------------------------------------------
 
-(s/defn unit-neighbors [board :- Board unit :- Unit]
-  (filter-valid-cells board
-                      (set/difference (into #{} (mapcat c/neighbors) (:members unit))
-                                      (set (:members unit)))))
-
+(s/defn unit-neighbors :- [Cell]
+  "Returns a seq of all neighboar cells of a unit."
+  [board :- Board unit :- Unit]
+  (->> (set/difference (into #{} (mapcat c/neighbors) (:members unit))
+                       (set (:members unit)))
+       (filter-valid-cells board)))
 
 ;; ---- Graph -----------------------------------------------------------------
 
