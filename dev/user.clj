@@ -45,9 +45,6 @@
   (swap! b #(update-in % [:units 0] turn-cw))
   (swap! b #(update-in % [:units 0] turn-ccw))
 
-  (swap! b find-bottom-nodes)
-  (swap! b lock-units)
-
   ;; Show all childs of first unit
   (swap! b (fn [b] (update b :units #(into % (moves b (first (:units b)))))))
 

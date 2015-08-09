@@ -92,10 +92,6 @@
   [board :- Board unit :- Unit]
   (update board :filled #(into % (:members unit))))
 
-(s/defn lock-units :- Board [board :- Board]
-  (-> (update board :filled #(into % (mapcat :members) (:units board)))
-      (assoc :units [])))
-
 (s/defn valid-cell? :- Bool
     "Tests if a cell is a valid (unfilled) cell."
     [{:keys [filled] :as board} cell]
