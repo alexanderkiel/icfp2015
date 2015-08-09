@@ -76,6 +76,10 @@
   (reset! b (:board @game))
   :ok)
 
+(defn play-game! []
+  (swap! game (partial play naive-placement stupid-path))
+  :ok)
+
 (defn step-game2! []
   (swap! game (partial step naive-placement-sample stupid-path))
   (reset! b (:board @game))
@@ -116,6 +120,8 @@
   (step-game2!)
   (show-game!)
 
+  (play-game!)
+
   (init-but-keep-commands! p0 0)
   (micro-step!)
 
@@ -123,6 +129,8 @@
   (select-keys @game [:commands :board :unit-stack :finished])
   (select-keys @game [:commands  :finished])
   (letter-to-cmd (first (@game :commands)))
+
+  (apply str (:commands @game))
 
   ((cmd-move :lock) (first (:units @b)))
 

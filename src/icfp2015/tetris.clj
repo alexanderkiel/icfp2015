@@ -149,7 +149,8 @@
 
   Pops one unit from unit stack and locks it at its end position.
   Finishes game if empty unit stack or invalid spawn position."
-  [placer :- Placer,  path-gen :- PathGen, {:keys [unit-stack start-nodes board] :as game} :- Game]
+  [placer :- Placer, path-gen :- PathGen
+  , {:keys [unit-stack start-nodes board] :as game} :- Game]
   (if-let [unit (first unit-stack)]
     (if (valid? board (start-nodes unit))
       (let [pruned-game (prune-game game unit)
@@ -159,6 +160,14 @@
            (update :unit-stack rest)))
       (assoc game :finished true))
     (assoc game :finished true)))
+
+(s/defn play :- Game
+  "Plays the game to the end."
+  [placer :- Placer, path-gen :- PathGen, game :- Game]
+  (loop [game game]
+    (if-not (:finished game)
+      (recur (step placer path-gen game))
+      game)))
 
 (s/defn spawn-next :- Game
   [{:keys [unit-stack] :as game} :- Game ]
