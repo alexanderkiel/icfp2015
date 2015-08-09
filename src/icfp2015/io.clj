@@ -13,4 +13,5 @@
 
 (s/defn read-problem :- Problem [file]
   (-> (json/read-str (slurp file) :key-fn keyword)
-      (update :units (partial mapv transform-unit))))
+      (update :units (partial mapv transform-unit))
+      (update :filled (partial mapv transform-cell))))
