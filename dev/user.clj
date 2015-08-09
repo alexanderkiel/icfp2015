@@ -74,7 +74,6 @@
   (swap! game (partial step naive-placement2))
   :ok)
 
-
 (defn show-game! []
   (reset! b (:board @game))
   :ok)

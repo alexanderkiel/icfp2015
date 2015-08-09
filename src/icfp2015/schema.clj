@@ -42,3 +42,6 @@
    :unitstack [Unit]
    :graphs {Unit Graph}})
 
+(def Placer
+  "A placer calculates an end position (unit) of a unit in game."
+  (s/=> Unit Game Unit))

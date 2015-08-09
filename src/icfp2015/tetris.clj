@@ -10,7 +10,7 @@
 ;; ---- Probability stuff ------------------------------------------------------
 
 (defn softmax [values]
-  (let [lst (map  #(Math/exp %) values)
+  (let [lst (map #(Math/exp %) values)
         sum (reduce + lst)]
     (map #(/ % sum) lst)))
 
@@ -47,17 +47,16 @@
 
 ;; ---- Naive ------------------------------------------------------------------
 
-(s/defn naive-placement :- Game
+(s/defn naive-placement :- Unit
   "Locks unit in a first good naive end position."
-  [{:keys [board graphs] :as game} unit]
+  [{:keys [board graphs]} :- Game unit :- Unit]
   (let [graph (graphs unit)
         nodes (g/nodes graph)
         first-good-xf
         (comp
           (remove-nodes-xf graph :sw :se)
-          (map #(vector % (count (unit-neighbors board %)))))
-        end-node (ffirst (sort-by second (sequence first-good-xf nodes)))]
-    (update game :board #(lock-unit % end-node))))
+          (map #(vector % (count (unit-neighbors board %)))))]
+    (ffirst (sort-by second (sequence first-good-xf nodes)))))
 
 ; just puts a stone at the best local position
 (defn naive-placement2
@@ -77,9 +76,10 @@
 
   Pops one unit from unit stack and locks it at its end position. Does nothing
   if unit stack is empty."
-  [ placer {:keys [unitstack] :as game} :- Game]
+  [placer :- Placer {:keys [unitstack] :as game} :- Game]
   (if-let [unit (first unitstack)]
-    (-> (placer game unit)
-        (update :unitstack rest))
+    (let [end-pos (placer game unit)]
+      (-> (update game :board #(lock-unit % end-pos))
+          (update :unitstack rest)))
     game))
 
