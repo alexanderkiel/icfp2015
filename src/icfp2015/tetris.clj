@@ -103,7 +103,6 @@
                     :se  \o
                     :cw  \r
                     :ccw \x
-                    :lock \space
                     :noop \tab})
 (def letter-to-cmd
   (apply hash-map (concat (interleave [\p, \', \!, \., \0, \3] (repeat :w))
@@ -112,8 +111,7 @@
                           (interleave [\l, \m, \n, \o, \space , \5] (repeat :se))
                           (interleave [\d, \q, \r, \v, \z, \1] (repeat :cw))
                           (interleave [\k, \s, \t, \u, \w, \x] (repeat :ccw))
-                          [\newline :lock]
-                          (interleave [\tab, \return] (repeat :noop))
+                          (interleave [\tab, \return \newline] (repeat :noop))
                           )))
 
 
@@ -123,9 +121,13 @@
   (let [start-position (move-to-spawn-pos (:width board) unit)
         g (get graphs unit)
         path (ga/shortest-path g start-position target-location)
+        nonlocking (map #(:cmd (apply l/label g %)) (g/out-edges g target-location))
+        lockingmove :sw                                        ;    (first (disj {:w :e :se :sw} nonlocking)
         ]
+    (print lockingmove)
     (conj (vec (map (fn [edge] (cmd-to-letter (:cmd (apply l/label g edge))))
-                          (partition 2 1 path))) \space )))
+                          (partition 2 1 path)))
+          (cmd-to-letter lockingmove))))
 
 ;; ---- Game ------------------------------------------------------------------
 
@@ -185,10 +187,10 @@
     (if (nil? unit)
       (spawn-next game)
       (let [newunit ((cmd-move cmd) unit)]
-        (if (= cmd :lock)
-          (-> (update game :board #(lock-unit % newunit))
-              (assoc-in [:board :units] [])
-              (update :commands rest))
+        (if (valid? board newunit)
           (-> (assoc-in game [:board :units 0] newunit)
+              (update :commands rest))
+          (-> (update game :board #(lock-unit % unit))
+              (assoc-in [:board :units] [])
               (update :commands rest)))))))
 

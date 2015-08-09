@@ -160,7 +160,8 @@
      :se move-south-east
      :sw move-south-west
      :cw turn-cw
-     :ccw turn-ccw}))
+     :ccw turn-ccw
+     }))
 
 (s/defn graph :- Graph
   "Creates a graph of all reachable units from start unit on board."
@@ -206,3 +207,10 @@
 
 (defnk problem->board :- Board [width height filled]
   (apply board width height filled))
+
+(comment
+
+  (def g (g/digraph [1 2] [2 3] {3 [4] 5 [6 7]} 7 8 9))
+  (g/out-edges g 5)
+
+  )

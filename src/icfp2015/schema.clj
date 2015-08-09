@@ -12,7 +12,7 @@
    :members [Cell]})
 
 (def Cmd
-  (s/enum :e :w :se :sw :cw :ccw :noop :lock))
+  (s/enum :e :w :se :sw :cw :ccw :noop))
 
 (def Char
   (s/pred char?))
