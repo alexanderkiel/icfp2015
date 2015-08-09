@@ -74,7 +74,7 @@
   :ok)
 
 (defn step-game2! []
-  (swap! game (partial step naive-placement2))
+  (swap! game (partial step naive-placement-sample))
   :ok)
 
 (defn show-game! []
@@ -90,6 +90,7 @@
 
   (count (:unit-stack @game))
   (:board @game)
+  (:commands @game)
   (nodes-to-prune @game (first (:unit-stack @game)))
 
 )

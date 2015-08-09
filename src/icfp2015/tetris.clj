@@ -5,6 +5,7 @@
             [icfp2015.schema :refer :all]
             [icfp2015.cell :as c]
             [loom.graph :as g]
+            [loom.alg :as ga]
             [loom.label :as l]
             [icfp2015.core :refer :all]))
 
@@ -59,7 +60,7 @@
 ;; ---- Naive ------------------------------------------------------------------
 
 (s/defn naive-placement :- Unit
-  "Locks unit in a first good naive end position."
+  "Selects the locally best location for the given unit and returns its final location"
   [{:keys [board graphs] :as game} :- Game unit :- Unit]
   (let [nodes-to-prune (nodes-to-prune game unit)
         graph (apply g/remove-nodes (graphs unit) nodes-to-prune)
@@ -71,17 +72,58 @@
     (ffirst (sort-by second (sequence first-good-xf nodes)))))
 
 ; just puts a stone at the best local position
-(defn naive-placement2
-  "game -> unit-final-location"
+(defn naive-placement-sample
+  "selects a good location for the given unit and returns its final location"
   [{:keys [graphs] :as game} unit]
   (let [g (graphs unit)
         nodes (g/nodes g)
         b (:board game)
         targetlocations (into [] (remove-nodes-xf g :sw :se) nodes)
-        scores (map (count #(unit-neighbors b %)) targetlocations)
+        scores (map #(count (unit-neighbors b %)) targetlocations)
         loc (nth targetlocations (sampler-min scores))
         ]
     loc))
+
+
+;; ---- Path ------------------------------------------------------------------
+
+;{p, ', !, ., 0, 3}	move W
+;{b, c, e, f, y, 2}	move E
+;{a, g, h, i, j, 4}	move SW
+;{l, m, n, o, space, 5}    	move SE
+;{d, q, r, v, z, 1}	rotate clockwise
+;{k, s, t, u, w, x}	rotate counter-clockwise
+;\t, \n, \r	(ignored)
+
+(def move-to-letter {:w   \!
+                     :e   \e
+                     :sw  \i
+                     :se  \o
+                     :cw  \r
+                     :ccw \x})
+(def letter-to-move
+  (apply hash-map (concat (interleave [\p, \', \!, \., \0, \3] (repeat :w))
+                          (interleave [\b, \c, \e, \f, \y, \2] (repeat :e))
+                          (interleave [\a, \g, \h, \i, \j, \4] (repeat :sw))
+                          (interleave [\l, \m, \n, \o, \space , \5] (repeat :se))
+                          (interleave [\d, \q, \r, \v, \z, \1] (repeat :cw))
+                          (interleave [\k, \s, \t, \u, \w, \x] (repeat :ccw))
+                          (interleave [\tab, \newline, \return] (repeat :noop))
+                          )))
+
+
+(s/defn stupid-path
+  "Calculates the (shortest) path to target-location"
+  [{:keys [board graphs] :as game} :- Game unit :- Unit target-location :- Unit]
+  (let [start-position (move-to-spawn-pos (:width board) unit)
+        g (get graphs unit)
+        path (ga/shortest-path g start-position target-location)
+        ]
+    (map (fn [edge] (move-to-letter (:cmd (apply l/label g edge))))
+         (partition 2 1 path))))
+
+
+;; ---- Game ------------------------------------------------------------------
 
 (s/defn step :- Game
   "Plays one step in the game.
@@ -92,6 +134,7 @@
   (if-let [unit (first unit-stack)]
     (let [end-pos (placer game unit)]
       (-> (update game :board #(lock-unit % end-pos))
+          (update :commands #(into % (stupid-path game unit end-pos)))
           (update :unit-stack rest)))
     game))
 
