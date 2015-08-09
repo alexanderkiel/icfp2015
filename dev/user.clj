@@ -146,7 +146,7 @@
 (defn parse-date [date]
   (f/parse (f/formatters :date-time) date))
 
-(defn tail-submissions [n]
+(defn tail-submissions [tag-regex n]
   (->> (-> @(http/get "https://davar.icfpcontest.org/teams/305/solutions"
                       {:as :text
                        :basic-auth ["" (System/getenv "API_TOKEN")]})
@@ -155,8 +155,9 @@
        (map #(update % :createdAt parse-date))
        (sort-by :createdAt)
        (reverse)
+       (filter #(re-find tag-regex (:tag %)))
        (take n)))
 
 (comment
-  (pprint (tail-submissions 3))
+  (pprint (tail-submissions #"Alex" 2))
   )
