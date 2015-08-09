@@ -13,35 +13,30 @@
   (let [punits (:units problem)
         unitnum (count punits)
         board (problem->board problem)
-        graphs (zipmap punits (map #(graph board %) (map move-to-spawn-pos punits)))
+        graphs (zipmap punits (map #(graph board %) (map #(move-to-spawn-pos (:width board) %) punits)))
         unitindices (map #(mod % unitnum) (take (:sourceLength problem) (rng (nth (:sourceSeeds problem) seedidx))))
         sequnits (map #(nth punits %) unitindices)]
     {:seedIdx seedidx
      :board board
      :graphs graphs
-     :unitstack sequnits})
-  )
+     :unitstack sequnits}))
 
+(s/defn naive-placement :- Game
+  "Locks unit in a first good naive end position."
+  [{:keys [graphs] :as game} unit]
+  (let [graph (graphs unit)
+        nodes (g/nodes graph)
+        first-good-xf (comp (remove-nodes-xf graph :sw :se) (take 1))
+        end-node (first (sequence first-good-xf nodes))]
+    (update game :board #(lock-unit % end-node))))
 
-; just puts a stone at the best local position
-(defn naive-placement
-  "game -> unit-final-location"
-  [game]
-  (let [u (first (:unitstack game))
-        g (get (:graphs game) u)
-        nodes (g/nodes g)
-        goodlocations (into [] (remove-nodes-xf g :sw :se) nodes)
-        ]
-    (first goodlocations)))
+(s/defn step :- Game
+  "Plays one step in the game.
 
-; just puts a stone at the best local position
-(defn play-naive-tetris
-  [game]
-  )
-
-; board [units] ->
-;
-;
-
-
-
+  Pops one unit from unit stack and locks it at its end position. Does nothing
+  if unit stack is empty."
+  [{:keys [unitstack] :as game} :- Game]
+  (if-let [unit (first unitstack)]
+    (-> (naive-placement game unit)
+        (update :unitstack rest))
+    game))
