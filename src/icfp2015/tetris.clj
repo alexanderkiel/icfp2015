@@ -58,7 +58,8 @@
      :node-indices (map-vals #(node-index board %) graphs)
      :start-nodes (zipmap start-nodes units)
      :unit-stack (source-units problem seed-idx)
-     :commands []}))
+     :commands []
+     :finished false}))
 
 ;; ---- Naive -----------------------------------------------------------------
 
@@ -97,20 +98,23 @@
 ;{k, s, t, u, w, x}	rotate counter-clockwise
 ;\t, \n, \r	(ignored)
 
-(def move-to-letter {:w   \!
-                     :e   \e
-                     :sw  \i
-                     :se  \o
-                     :cw  \r
-                     :ccw \x})
-(def letter-to-move
+(def cmd-to-letter {:w   \!
+                    :e   \e
+                    :sw  \i
+                    :se  \o
+                    :cw  \r
+                    :ccw \x
+                    :lock \newline
+                    :noop \tab})
+(def letter-to-cmd
   (apply hash-map (concat (interleave [\p, \', \!, \., \0, \3] (repeat :w))
                           (interleave [\b, \c, \e, \f, \y, \2] (repeat :e))
-                          (interleave [\a, \g, \h, \i, \j, \4] (repeat :sw))
+                          (interleave [\a, \g, \h, \i, \j ,\4] (repeat :sw))
                           (interleave [\l, \m, \n, \o, \space , \5] (repeat :se))
                           (interleave [\d, \q, \r, \v, \z, \1] (repeat :cw))
                           (interleave [\k, \s, \t, \u, \w, \x] (repeat :ccw))
-                          (interleave [\tab, \newline, \return] (repeat :noop))
+                          [\newline :lock]
+                          (interleave [\tab, \return] (repeat :noop))
                           )))
 
 
@@ -121,11 +125,20 @@
         g (get graphs unit)
         path (ga/shortest-path g start-position target-location)
         ]
-    (map (fn [edge] (move-to-letter (:cmd (apply l/label g edge))))
-         (partition 2 1 path))))
+    (conj (vec (map (fn [edge] (cmd-to-letter (:cmd (apply l/label g edge))))
+                          (partition 2 1 path))) \newline )))
 
 
 ;; ---- Game ------------------------------------------------------------------
+
+(s/defn spawn-next :- Game
+  [{:keys [board unit-stack] :as game} :- Game ]
+  (if (empty? unit-stack)
+    (assoc game :finished true)
+    (let [unit (first unit-stack)]
+      (-> (update game :board #(spawn % unit))
+          (update :unit-stack rest)))))
+
 
 (defn- prune-game
   "Prunes the graph of unit in game."
@@ -147,4 +160,21 @@
           (update :commands #(into % (stupid-path pruned-game unit end-pos)))
           (update :unit-stack rest)))
     game))
+
+
+(s/defn micro-step :- Game
+  "Plays one small move"
+  [{:keys [board commands finished] :as game} :- Game]
+  (let [cmd (letter-to-cmd (first commands))
+        unit (first (:units board))]
+    (if (nil? unit)
+      (spawn-next game)
+      (let [newunit ((cmd-move cmd) unit)]
+        (print newunit)
+        (if (= cmd :lock)
+          (-> (update game :board #(lock-unit % newunit))
+              (assoc-in [:board :units] [])
+              (update :commands rest))
+          (-> (assoc-in game [:board :units 0] newunit)
+              (update :commands rest)))))))
 

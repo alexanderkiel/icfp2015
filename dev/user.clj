@@ -66,6 +66,11 @@
   (reset! game (prepare-game problem seed-idx))
   :ok)
 
+(defn init-but-keep-commands! [problem seed-idx]
+  (let [cmds (:commands @game)]
+    (reset! game (assoc (prepare-game problem seed-idx) :commands cmds))
+    ):ok)
+
 (defn step-game! []
   (swap! game (partial step (timed naive-placement)))
   :ok)
@@ -78,6 +83,11 @@
   (reset! b (:board @game))
   :ok)
 
+(defn micro-step! []
+  (swap! game micro-step)
+  (reset! b (:board @game))
+  :ok)
+
 (comment
   (def p0 (read-problem "problems/problem_0.json"))
   (init-game! p0 0)
@@ -86,9 +96,17 @@
   (step-game2!)
   (show-game!)
 
+  (init-but-keep-commands! p0 0)
+  (micro-step!)
+
+  (select-keys (swap! game spawn-next) [:board :unit-stack])
+  (select-keys @game [:commands :board :unit-stack :finished])
+  (select-keys @game [:commands  :finished])
+  (letter-to-cmd (first (@game :commands)))
+
+  ((cmd-move :lock) (first (:units @b)))
   (count (:unit-stack @game))
   (:board @game)
   (:commands @game)
-  (nodes-to-prune @game (first (:unit-stack @game)))
+  (nodes-to-prune @game (first (:unit-stack @game))))
 
-)

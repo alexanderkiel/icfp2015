@@ -47,6 +47,15 @@
 (s/defn turn-ccw :- Unit [unit :- Unit]
   (update unit :members (partial into [] (c/rotate-ccw-xf (:pivot unit)))))
 
+(def cmd-move {:e move-east
+               :w move-west
+               :sw move-south-west
+               :se move-south-east
+               :cw turn-cw
+               :ccw turn-ccw
+               :noop identity
+               :lock identity})
+
 ;; ---- RNG -------------------------------------------------------------------
 
 (defn- lcg [a c m]
