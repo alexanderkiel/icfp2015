@@ -7,6 +7,7 @@
                  [aysylu/loom "0.5.4"]
                  [http-kit "2.1.18"]
                  [jarohen/chord "0.6.0"]
+                 [clj-time "0.10.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  [org.slf4j/slf4j-api "1.7.7"]
                  [ch.qos.logback/logback-classic "1.1.2"]]

@@ -8,7 +8,10 @@
             [icfp2015.server :as server]
             [icfp2015.io :refer [read-problem]]
             [icfp2015.core :refer :all]
-            [icfp2015.tetris :refer :all]))
+            [icfp2015.tetris :refer :all]
+            [org.httpkit.client :as http]
+            [clojure.data.json :as json]
+            [clj-time.format :as f]))
 
 (defonce stop (server/start 5011))
 
@@ -21,10 +24,10 @@
   (let [g (graph board (first (:units board)))
         nodes (g/nodes g)]
     (->> (into []
-           (comp
-             (remove-nodes-xf g :sw :se)
-             (take 6))
-           nodes)
+               (comp
+                 (remove-nodes-xf g :sw :se)
+                 (take 6))
+               nodes)
          (assoc board :units))))
 
 (comment
@@ -127,7 +130,7 @@
 
   (select-keys (swap! game spawn-next) [:board :unit-stack])
   (select-keys @game [:commands :board :unit-stack :finished])
-  (select-keys @game [:commands  :finished])
+  (select-keys @game [:commands :finished])
   (letter-to-cmd (first (@game :commands)))
 
   (apply str (:commands @game))
@@ -140,3 +143,20 @@
   (:commands @game)
   (nodes-to-prune @game (first (:unit-stack @game))))
 
+(defn parse-date [date]
+  (f/parse (f/formatters :date-time) date))
+
+(defn tail-submissions [n]
+  (->> (-> @(http/get "https://davar.icfpcontest.org/teams/305/solutions"
+                      {:as :text
+                       :basic-auth ["" (System/getenv "API_TOKEN")]})
+           (:body)
+           (json/read-str :key-fn keyword))
+       (map #(update % :createdAt parse-date))
+       (sort-by :createdAt)
+       (reverse)
+       (take n)))
+
+(comment
+  (pprint (tail-submissions 3))
+  )
