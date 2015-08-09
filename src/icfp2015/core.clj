@@ -1,7 +1,7 @@
 (ns icfp2015.core
   (:use plumbing.core)
   (:require [clojure.set :as set]
-            [schema.core :as s :refer [Int]]
+            [schema.core :as s :refer [Int Bool]]
             [icfp2015.cell :as c]
             [icfp2015.schema :refer :all]
             [loom.graph :as g]
@@ -87,12 +87,16 @@
        (vector)
        (assoc board :units)))
 
+(s/defn lock-unit :- Board
+  "Locks unit on board."
+  [board :- Board unit :- Unit]
+  (update board :filled #(into % (:members unit))))
+
 (s/defn lock-units :- Board [board :- Board]
   (-> (update board :filled #(into % (mapcat :members) (:units board)))
       (assoc :units [])))
 
-
-(s/defn valid-cell? ;- Bool
+(s/defn valid-cell? :- Bool
     "Tests if a cell is a valid (unfilled) cell."
     [{:keys [filled] :as board} cell]
     (and (c/valid? board cell)

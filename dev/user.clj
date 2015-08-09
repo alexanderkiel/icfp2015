@@ -8,7 +8,7 @@
             [icfp2015.server :as server]
             [icfp2015.io :refer [read-problem]]
             [icfp2015.core :refer :all]
-            [icfp2015.tetris :as t :refer :all]))
+            [icfp2015.tetris :refer :all]))
 
 (defonce stop (server/start 5011))
 
@@ -58,35 +58,29 @@
 
   )
 
-(defn show-game! [game]
-  (reset! b (:board game)))
+;; ---- Game ------------------------------------------------------------------
 
-(def g (atom {}))
+(def game (atom {}))
+
+(defn init-game! [problem seed-idx]
+  (reset! game (prepare-game problem seed-idx))
+  :ok)
+
+(defn step-game! []
+  (swap! game step)
+  :ok)
+
+(defn show-game! []
+  (reset! b (:board @game))
+  :ok)
 
 (comment
   (def p0 (read-problem "problems/problem_0.json"))
-  (:seedIdx (reset! g (t/prepare-game p0 0)))
-  (show-game! @g)
-  (def g0 (t/prepare-game p0 0))
-  (:unitstack g0)
+  (init-game! p0 0)
+  (step-game!)
+  (show-game!)
+
+  (count (:unitstack @game))
+  (:board @game)
+
 )
-
-(comment
-
-  (moves @b (first (:units @b)))
-  (pprint *1)
-
-
-
-  (pprint *1)
-
-  )
-
-(defn random-gen [seed]
-  (let [iter (fn [x] (mod (+ (* x 1103515245) 12345) 0xFFFFFFFF))]
-    (map #(bit-and (bit-shift-right % 16) 0x7FFFF) (iterate iter seed))
-    ))
-
-(comment
-  (take 10 (random-gen 17))
-  )
