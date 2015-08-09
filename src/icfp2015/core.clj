@@ -104,18 +104,20 @@
 
 (s/defn clear-lines :- Board
   "Clears all full lines on board."
-  [{:keys [width height] :as board} :- Board]
-  (update
-    board
-    :filled
-    #(reduce
-      (fn [filled row-idx]
-        (let [filled-in-row (filter (fn [cell] (= row-idx (second cell))) filled)]
-          (if (= width (count filled-in-row))
-            (apply disj filled filled-in-row)
-            filled)))
-      %
-      (range height))))
+  [{:keys [width height filled] :as board} :- Board]
+  (->> (loop [filled filled
+              row-idx (dec height)]
+         (let [filled-in-row (filter #(= row-idx (second %)) filled)]
+           (if (= width (count filled-in-row))
+             (recur
+               (->> (apply disj filled filled-in-row)
+                    (map (c/translator 0 1))
+                    (set))
+               row-idx)
+             (if (zero? row-idx)
+               filled
+               (recur filled (dec row-idx))))))
+       (assoc board :filled)))
 
 ;; ---- Unit ------------------------------------------------------------------
 

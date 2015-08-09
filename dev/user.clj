@@ -82,6 +82,7 @@
   (def p0 (read-problem "problems/problem_0.json"))
   (init-game! p0 0)
   (step-game!)
+  (show-game!)
   (step-game2!)
   (show-game!)
 

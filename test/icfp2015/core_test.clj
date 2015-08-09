@@ -94,4 +94,12 @@
 
   (testing "Doesn't clear single filled cell"
     (given (clear-lines (board 2 2 [0 1]))
-      :filled := #{[0 1]})))
+      :filled := #{[0 1]}))
+
+  (testing "Moves upper filled cells downwards"
+    (given (clear-lines (board 2 2 [0 0] [0 1] [1 1]))
+      :filled := #{[0 1]}))
+
+  (testing "Moves all upper filled cells downwards"
+    (given (clear-lines (board 2 3 [0 0] [0 1] [1 1] [0 2] [1 2]))
+      :filled := #{[0 2]})))
