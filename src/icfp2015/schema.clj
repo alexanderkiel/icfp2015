@@ -1,6 +1,6 @@
 (ns icfp2015.schema
   "Schemas for things in the game."
-  (:require [schema.core :as s :refer [Int Char]]
+  (:require [schema.core :as s :refer [Int]]
             [loom.graph :as g]))
 
 (def Cell
