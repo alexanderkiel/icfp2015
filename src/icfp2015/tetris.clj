@@ -29,9 +29,8 @@
 
 ;; ---- Init ------------------------------------------------------------------
 
-(defn- graphs [board {:keys [units]}]
-  (->> units
-       (map #(move-to-spawn-pos (:width board) %))
+(defn- graphs [board units start-nodes]
+  (->> start-nodes
        (map #(graph board %))
        (zipmap units)))
 
@@ -50,11 +49,14 @@
   "Returns a game from the problem with given seed index."
   [problem :- Problem seed-idx :- Int]
   (let [board (problem->board problem)
-        graphs (graphs board problem)]
+        units (:units problem)
+        start-nodes (map #(move-to-spawn-pos (:width board) %) units)
+        graphs (graphs board units start-nodes)]
     {:seed-idx seed-idx
      :board board
      :graphs graphs
      :node-indices (map-vals #(node-index board %) graphs)
+     :start-nodes (zipmap start-nodes units)
      :unit-stack (source-units problem seed-idx)
      :commands []}))
 

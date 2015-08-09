@@ -49,6 +49,7 @@
    :unit-stack [Unit]
    :graphs {Unit Graph}
    :node-indices {Unit NodeIndex}
+   :start-nodes {Unit Unit}
    :commands [Char]})
 
 (def Placer
