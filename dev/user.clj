@@ -60,7 +60,7 @@
   )
 
 (defn show-game! [game]
-  (swap! b (:board game)))
+  (reset! b (:board game)))
 
 (def g (atom {}))
 
