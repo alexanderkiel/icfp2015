@@ -105,7 +105,7 @@
            (if (= width (count filled-in-row))
              (recur
                (->> (apply disj filled filled-in-row)
-                    (map (c/translator 0 1))
+                    (map #(if (< (second %) row-idx) ((c/translator 0 1) %) %))
                     (set))
                row-idx)
              (if (zero? row-idx)

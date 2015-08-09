@@ -73,6 +73,7 @@
 
 (defn step-game! []
   (swap! game (partial step (timed naive-placement) stupid-path))
+  (show-game!)
   :ok)
 
 (defn step-game2! []
@@ -108,7 +109,7 @@
   (show-next-start-node!)
   (show-pruned-graph!)
   (step-game!)
-  (show-game!)
+
 
   (show-next-start-node!)
   (step-game2!)
