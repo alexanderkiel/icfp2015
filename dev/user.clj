@@ -13,7 +13,6 @@
 (defonce stop (server/start 5011))
 
 (def b (atom {}))
-(def g (atom {}))
 (add-watch b :send (fn [_ _ _ b] (put! server/ch b)))
 
 (defn find-bottom-nodes
@@ -62,6 +61,8 @@
 
 (defn show-game! [game]
   (swap! b (:board game)))
+
+(def g (atom {}))
 
 (comment
   (def p0 (read-problem "problems/problem_0.json"))
