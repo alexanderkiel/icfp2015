@@ -52,7 +52,7 @@
         board (problem->board problem)
         units (:units problem)
         start-nodes (map #(move-to-spawn-pos (:width board) %) units)
-        graphs (graphs board units start-nodes)]
+        graphs (graphs (assoc board :filled #{}) units start-nodes)]
     {:problem-id (:id problem)
      :seed seed
      :board board
