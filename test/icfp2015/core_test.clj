@@ -82,3 +82,16 @@
             [1 0] [(unit [1 0] [1 0])]
             [0 1] [(unit [0 1] [0 1])]
             [1 1] [(unit [1 1] [1 1])]}))))
+
+(deftest clear-lines-test
+  (testing "Works on empty filled"
+    (given (clear-lines (board 2 2))
+      :filled := #{}))
+
+  (testing "Clears one line"
+    (given (clear-lines (board 2 2 [0 1] [1 1]))
+      :filled := #{}))
+
+  (testing "Doesn't clear single filled cell"
+    (given (clear-lines (board 2 2 [0 1]))
+      :filled := #{[0 1]})))

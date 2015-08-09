@@ -18,10 +18,10 @@
 (s/defn board :- Board
   "Creates a board."
   [width :- Int height :- Int & filled :- [Cell]]
-  {:width  width
+  {:width width
    :height height
    :filled (set filled)
-   :units  []})
+   :units []})
 
 ;; ---- Commands --------------------------------------------------------------
 
@@ -93,14 +93,29 @@
   (update board :filled #(into % (:members unit))))
 
 (s/defn valid-cell? :- Bool
-    "Tests if a cell is a valid (unfilled) cell."
-    [{:keys [filled] :as board} cell]
-    (and (c/valid? board cell)
-         (not (contains? filled cell))))
+  "Tests if a cell is a valid (unfilled) cell."
+  [{:keys [filled] :as board} cell]
+  (and (c/valid? board cell)
+       (not (contains? filled cell))))
 
 (s/defn filter-valid-cells :- [Cell]
   [board :- Board cells :- [Cell]]
   (filter #(valid-cell? board %) cells))
+
+(s/defn clear-lines :- Board
+  "Clears all full lines on board."
+  [{:keys [width height] :as board} :- Board]
+  (update
+    board
+    :filled
+    #(reduce
+      (fn [filled row-idx]
+        (let [filled-in-row (filter (fn [cell] (= row-idx (second cell))) filled)]
+          (if (= width (count filled-in-row))
+            (apply disj filled filled-in-row)
+            filled)))
+      %
+      (range height))))
 
 ;; ---- Unit ------------------------------------------------------------------
 
