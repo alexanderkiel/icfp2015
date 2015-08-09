@@ -63,8 +63,7 @@
 (s/defn naive-placement :- Unit
   "Selects the locally best location for the given unit and returns its final location"
   [{:keys [board graphs] :as game} :- Game unit :- Unit]
-  (let [nodes-to-prune (nodes-to-prune game unit)
-        graph (apply g/remove-nodes (graphs unit) nodes-to-prune)
+  (let [graph (graphs unit)
         nodes (g/nodes graph)
         first-good-xf
         (comp
@@ -126,6 +125,12 @@
 
 ;; ---- Game ------------------------------------------------------------------
 
+(defn- prune-game
+  "Prunes the graph of unit in game."
+  [game unit]
+  (let [nodes-to-prune (nodes-to-prune game unit)]
+    (update-in game [:graphs unit] #(apply g/remove-nodes % nodes-to-prune))))
+
 (s/defn step :- Game
   "Plays one step in the game.
 
@@ -133,9 +138,10 @@
   if unit stack is empty."
   [placer :- Placer {:keys [unit-stack] :as game} :- Game]
   (if-let [unit (first unit-stack)]
-    (let [end-pos (placer game unit)]
+    (let [pruned-game (prune-game game unit)
+          end-pos (placer pruned-game unit)]
       (-> (update game :board #(lock-unit % end-pos))
-          (update :commands #(into % (stupid-path game unit end-pos)))
+          (update :commands #(into % (stupid-path pruned-game unit end-pos)))
           (update :unit-stack rest)))
     game))
 
