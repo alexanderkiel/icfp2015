@@ -47,12 +47,6 @@
 (s/defn turn-ccw :- Unit [unit :- Unit]
   (update unit :members (partial into [] (c/rotate-ccw-xf (:pivot unit)))))
 
-;; ---- Unit ------------------------------------------------------------------
-
-(s/defn unit-neighbors [unit :- Unit]
-  (set/difference (into #{} (mapcat c/neighbors) (:members unit))
-                  (set (:members unit))))
-
 ;; ---- RNG -------------------------------------------------------------------
 
 (defn- lcg [a c m]
@@ -107,6 +101,15 @@
 (s/defn filter-valid-cells
   [board :- Board cells :- [Cell]]
   (filterv #(valid-cell? board %) cells))
+
+
+;; ---- Unit ------------------------------------------------------------------
+
+(s/defn unit-neighbors [board :- Board unit :- Unit]
+  (filter-valid-cells board
+                      (set/difference (into #{} (mapcat c/neighbors) (:members unit))
+                                      (set (:members unit)))))
+
 
 ;; ---- Graph -----------------------------------------------------------------
 

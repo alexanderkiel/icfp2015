@@ -13,8 +13,11 @@
   (let [punits (:units problem)
         unitnum (count punits)
         board (problem->board problem)
-        graphs (zipmap punits (map #(graph board %) (map move-to-spawn-pos punits)))
-        unitindices (map #(mod % unitnum) (take (:sourceLength problem) (rng (nth (:sourceSeeds problem) seedidx))))
+        graphs (zipmap punits (map #(graph board %)
+                                   (map move-to-spawn-pos punits)))
+        unitindices (map #(mod % unitnum)
+                         (take (:sourceLength problem)
+                               (rng (nth (:sourceSeeds problem) seedidx))))
         sequnits (map #(nth punits %) unitindices)]
     {:seedIdx seedidx
      :board board
@@ -29,10 +32,13 @@
   [game]
   (let [u (first (:unitstack game))
         g (get (:graphs game) u)
+        b (:board game)
         nodes (g/nodes g)
-        goodlocations (into [] (remove-nodes-xf g :sw :se) nodes)
+        targetlocations (into [] (remove-nodes-xf g :sw :se) nodes)
+        sortedlocs (sort-by second (map #([%, (count (unit-neighbors b %))]) targetlocations))
         ]
-    (first goodlocations)))
+    (first sortedlocs)))
+
 
 ; just puts a stone at the best local position
 (defn play-naive-tetris
