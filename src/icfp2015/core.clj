@@ -141,7 +141,7 @@
 
 ;; ---- Graph -----------------------------------------------------------------
 
-(defn- valid?
+(s/defn valid? :- Bool
   "Tests if a unit can be placed on the board."
   {:arglists '([board unit])}
   [{:keys [filled] :as board} {:keys [members]}]

@@ -56,3 +56,7 @@
 (def Placer
   "A placer calculates an end position (unit) of a unit in game."
   (s/=> Unit Game Unit))
+
+(def PathGen
+  "A path generator calculates path from start to end of a unit."
+  (s/=> Unit Game Unit Unit))

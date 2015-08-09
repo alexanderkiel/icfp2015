@@ -129,13 +129,6 @@
 
 ;; ---- Game ------------------------------------------------------------------
 
-(s/defn spawn-next :- Game
-  [{:keys [unit-stack] :as game} :- Game ]
-  (if (empty? unit-stack)
-    (assoc game :finished true)
-    (let [unit (first unit-stack)]
-      (-> (update game :board #(spawn % unit))
-          (update :unit-stack rest)))))
 
 (defn- reachable-subgraph [graph start]
   (g/subgraph graph (alg-generic/bf-traverse (g/successors graph) start)))
@@ -154,17 +147,26 @@
 (s/defn step :- Game
   "Plays one step in the game.
 
-  Pops one unit from unit stack and locks it at its end position. Does nothing
-  if unit stack is empty."
-  [placer :- Placer {:keys [unit-stack] :as game} :- Game]
+  Pops one unit from unit stack and locks it at its end position.
+  Finishes game if empty unit stack or invalid spawn position."
+  [placer :- Placer,  path-gen :- PathGen, {:keys [unit-stack start-nodes board] :as game} :- Game]
   (if-let [unit (first unit-stack)]
-    (let [pruned-game (prune-game game unit)
-          end-pos (placer pruned-game unit)]
-      (-> (update game :board #(lock-unit % end-pos))
-          (update :commands #(into % (stupid-path pruned-game unit end-pos)))
-          (update :unit-stack rest)))
-    game))
+    (if (valid? board (start-nodes unit))
+      (let [pruned-game (prune-game game unit)
+           end-pos (placer pruned-game unit)]
+       (-> (update game :board #(lock-unit % end-pos))
+           (update :commands #(into % (path-gen pruned-game unit end-pos)))
+           (update :unit-stack rest)))
+      (assoc game :finished true))
+    (assoc game :finished true)))
 
+(s/defn spawn-next :- Game
+  [{:keys [unit-stack] :as game} :- Game ]
+  (if (empty? unit-stack)
+    (assoc game :finished true)
+    (let [unit (first unit-stack)]
+      (-> (update game :board #(spawn % unit))
+          (update :unit-stack rest)))))
 
 (s/defn micro-step :- Game
   "Plays one small move"

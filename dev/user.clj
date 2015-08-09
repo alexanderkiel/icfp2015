@@ -72,11 +72,11 @@
   :ok)
 
 (defn step-game! []
-  (swap! game (partial step (timed naive-placement)))
+  (swap! game (partial step (timed naive-placement) stupid-path))
   :ok)
 
 (defn step-game2! []
-  (swap! game (partial step naive-placement-sample))
+  (swap! game (partial step naive-placement-sample stupid-path))
   :ok)
 
 (defn show-game! []
