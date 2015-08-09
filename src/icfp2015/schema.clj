@@ -44,7 +44,8 @@
   {Cell [Unit]})
 
 (def Game
-  {:seed-idx Int
+  {:problem-id Int
+   :seed Int
    :board Board
    :unit-stack [Unit]
    :graphs {Unit Graph}

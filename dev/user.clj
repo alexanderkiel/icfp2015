@@ -158,7 +158,20 @@
        (filter #(re-find tag-regex (:tag %)))
        (take n)))
 
+(defn submit-game [tag game]
+  (let [solution
+        [{"problemId" (:problem-id game),
+          "seed" (:seed game),
+          "tag" tag,
+          "solution" (apply str (:commands game))}]
+        resp @(http/post "https://davar.icfpcontest.org/teams/305/solutions"
+                         {:body (json/write-str solution)
+                          :headers {"Content-Type" "application/json"}
+                          :basic-auth ["" (System/getenv "API_TOKEN")]})]
+    (:status resp)))
+
 (comment
+  (submit-game "Alex" @game)
   (pprint (tail-submissions #"Alex" 2))
   (pprint (tail-submissions #"Georg" 6))
   )

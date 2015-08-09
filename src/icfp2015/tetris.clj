@@ -38,8 +38,8 @@
 
 (defn- source-units
   "Returns a seq of source units according the seed index."
-  [problem seed-idx]
-  (->> (rng (source-seed problem seed-idx))
+  [problem seed]
+  (->> (rng seed)
        (map #(mod % (count (:units problem))))
        (map #(nth (:units problem) %))
        (take (:sourceLength problem))))
@@ -47,16 +47,18 @@
 (s/defn prepare-game :- Game
   "Returns a game from the problem with given seed index."
   [problem :- Problem seed-idx :- Int]
-  (let [board (problem->board problem)
+  (let [seed (source-seed problem seed-idx)
+        board (problem->board problem)
         units (:units problem)
         start-nodes (map #(move-to-spawn-pos (:width board) %) units)
         graphs (graphs board units start-nodes)]
-    {:seed-idx seed-idx
+    {:problem-id (:id problem)
+     :seed seed
      :board board
      :graphs graphs
      :node-indices (map-vals #(node-index board %) graphs)
      :start-nodes (zipmap units start-nodes)
-     :unit-stack (source-units problem seed-idx)
+     :unit-stack (source-units problem seed)
      :commands []
      :finished false}))
 
