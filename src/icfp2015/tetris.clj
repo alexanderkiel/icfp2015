@@ -13,7 +13,7 @@
   (let [punits (:units problem)
         unitnum (count punits)
         board (problem->board problem)
-        graphs (zipmap punits (map #(graph board %) punits))
+        graphs (zipmap punits (map #(graph board %) (map move-to-spawn-pos punits)))
         unitindices (map #(mod % unitnum) (take (:sourceLength problem) (rng (nth (:sourceSeeds problem) seedidx))))
         sequnits (map #(nth punits %) unitindices)]
     {:seedIdx seedidx
