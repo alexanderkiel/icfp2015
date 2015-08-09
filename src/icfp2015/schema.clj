@@ -7,9 +7,12 @@
   [(s/one Int "x")
    (s/one Int "y")])
 
+(def Set
+  (s/pred set?))
+
 (def Unit
   {:pivot Cell
-   :members [Cell]})
+   :members Set})
 
 (def Cmd
   (s/enum :e :w :se :sw :cw :ccw :noop))
@@ -27,7 +30,7 @@
 (def Board
   {:width Int
    :height Int
-   :filled (s/pred set?)
+   :filled Set
    :units [Unit]})
 
 (def Problem

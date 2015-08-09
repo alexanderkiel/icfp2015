@@ -118,17 +118,16 @@
 
 
 (s/defn stupid-path
-  "Calculates the (shortest) path to target-location"
-  [{:keys [board graphs] :as game} :- Game unit :- Unit target-location :- Unit]
-  (let [start-position (move-to-spawn-pos (:width board) unit)
-        g (get graphs unit)
-        path (ga/shortest-path g start-position target-location)
-        nonlocking (map #(:cmd (apply l/label g %)) (g/out-edges g target-location))
-        lockingmove (first (disj #{:w :e :se :sw} nonlocking))
-        ]
-    (conj (vec (map (fn [edge] (cmd-to-letter (:cmd (apply l/label g edge))))
+  "Calculates the (shortest) path of unit to target-location"
+  [{:keys [board graphs]} :- Game, unit :- Unit, target-location :- Unit]
+  (let [start-pos (move-to-spawn-pos (:width board) unit)
+        graph (graphs unit)
+        path (ga/shortest-path graph start-pos target-location)
+        non-locking-cmds (map #(:cmd (apply l/label graph %)) (g/out-edges graph target-location))
+        locking-cmd (first (apply disj #{:w :e :se :sw} non-locking-cmds))]
+    (conj (vec (map (fn [edge] (cmd-to-letter (:cmd (apply l/label graph edge))))
                           (partition 2 1 path)))
-          (cmd-to-letter lockingmove))))
+          (cmd-to-letter locking-cmd))))
 
 ;; ---- Game ------------------------------------------------------------------
 

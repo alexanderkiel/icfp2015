@@ -11,7 +11,7 @@
   (testing "Move east"
     (given (move-east (unit [1 0] [1 0]))
       :pivot := [2 0]
-      :members := [[2 0]])))
+      :members := #{[2 0]})))
 
 (deftest spawn-test
   (testing "Spawn one-cell unit on 1x1 board."

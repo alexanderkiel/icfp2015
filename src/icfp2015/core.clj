@@ -13,7 +13,7 @@
   "Creates a unit."
   [pivot :- Cell & members :- [Cell]]
   {:pivot pivot
-   :members members})
+   :members (set members)})
 
 (s/defn board :- Board
   "Creates a board."
@@ -27,7 +27,7 @@
 
 (defn- move [dir unit]
   (-> (update unit :pivot dir)
-      (update :members (partial mapv dir))))
+      (update :members #(set (map dir %)))))
 
 (s/defn move-east :- Unit [unit :- Unit]
   (move c/move-east unit))
@@ -42,10 +42,10 @@
   (move c/move-south-west unit))
 
 (s/defn turn-cw :- Unit [unit :- Unit]
-  (update unit :members (partial into [] (c/rotate-cw-xf (:pivot unit)))))
+  (update unit :members (partial into #{} (c/rotate-cw-xf (:pivot unit)))))
 
 (s/defn turn-ccw :- Unit [unit :- Unit]
-  (update unit :members (partial into [] (c/rotate-ccw-xf (:pivot unit)))))
+  (update unit :members (partial into #{} (c/rotate-ccw-xf (:pivot unit)))))
 
 (def cmd-move {:e move-east
                :w move-west
@@ -87,7 +87,7 @@
         final-pivot-pos [(+ (first top-pivot-pos) dx) (second top-pivot-pos)]
         moved (map #(c/local-2-global final-pivot-pos (c/global-2-local top-pivot-pos %)) top-aligned)]
     (-> (assoc unit :pivot final-pivot-pos)
-        (assoc :members moved))))
+        (assoc :members (set moved)))))
 
 (s/defn spawn :- Board
   "Spawns a unit centered on top of the board."
@@ -135,7 +135,7 @@
   "Returns a seq of all neighboar cells of a unit."
   [board :- Board unit :- Unit]
   (->> (set/difference (into #{} (mapcat c/neighbors) (:members unit))
-                       (set (:members unit)))
+                       (:members unit))
        (seq)
        (filter-valid-cells board)))
 
@@ -146,7 +146,7 @@
   {:arglists '([board unit])}
   [{:keys [filled] :as board} {:keys [members]}]
   (and (every? #(c/valid? board %) members)
-       (not (some (set members) filled))))
+       (not (some members filled))))
 
 (s/defn moves :- [Move]
   "Returns a seq of possible moves of the unit on the board."

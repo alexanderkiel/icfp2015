@@ -9,7 +9,7 @@
 
 (defn- transform-unit [unit]
   (-> (update unit :pivot transform-cell)
-      (update :members (partial mapv transform-cell))))
+      (update :members #(set (map transform-cell %)))))
 
 (s/defn read-problem :- Problem [file]
   (-> (json/read-str (slurp file) :key-fn keyword)
