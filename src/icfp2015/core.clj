@@ -96,21 +96,6 @@
        (vector)
        (assoc board :units)))
 
-(s/defn lock-unit :- Board
-  "Locks unit on board."
-  [board :- Board unit :- Unit]
-  (update board :filled #(into % (:members unit))))
-
-(s/defn valid-cell? :- Bool
-  "Tests if a cell is a valid (unfilled) cell."
-  [{:keys [filled] :as board} cell]
-  (and (c/valid? board cell)
-       (not (contains? filled cell))))
-
-(s/defn filter-valid-cells :- [Cell]
-  [board :- Board cells :- [Cell]]
-  (filter #(valid-cell? board %) cells))
-
 (s/defn clear-lines :- Board
   "Clears all full lines on board."
   [{:keys [width height filled] :as board} :- Board]
@@ -127,6 +112,22 @@
                filled
                (recur filled (dec row-idx))))))
        (assoc board :filled)))
+
+(s/defn lock-unit :- Board
+  "Locks unit on board."
+  [board :- Board unit :- Unit]
+  (-> (update board :filled #(into % (:members unit)))
+      (clear-lines)))
+
+(s/defn valid-cell? :- Bool
+  "Tests if a cell is a valid (unfilled) cell."
+  [{:keys [filled] :as board} cell]
+  (and (c/valid? board cell)
+       (not (contains? filled cell))))
+
+(s/defn filter-valid-cells :- [Cell]
+  [board :- Board cells :- [Cell]]
+  (filter #(valid-cell? board %) cells))
 
 ;; ---- Unit ------------------------------------------------------------------
 

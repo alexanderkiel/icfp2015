@@ -156,7 +156,6 @@
     (let [pruned-game (prune-game game unit)
           end-pos (placer pruned-game unit)]
       (-> (update game :board #(lock-unit % end-pos))
-          (update :board clear-lines)
           (update :commands #(into % (stupid-path pruned-game unit end-pos)))
           (update :unit-stack rest)))
     game))
