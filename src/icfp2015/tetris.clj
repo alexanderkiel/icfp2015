@@ -62,7 +62,7 @@
 
 (s/defn naive-placement :- Unit
   "Selects the locally best location for the given unit and returns its final location"
-  [{:keys [board graphs] :as game} :- Game unit :- Unit]
+  [{:keys [board graphs]} :- Game unit :- Unit]
   (let [graph (graphs unit)
         nodes (g/nodes graph)
         first-good-xf
