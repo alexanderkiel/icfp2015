@@ -66,7 +66,7 @@
 
 (comment
   (def p0 (read-problem "problems/problem_0.json"))
-  (reset! g (t/prepare-game p0 0))
+  (:seedIdx (reset! g (t/prepare-game p0 0)))
   (show-game! @g)
   (def g0 (t/prepare-game p0 0))
   (:unitstack g0)
