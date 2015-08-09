@@ -23,11 +23,14 @@
 
 (s/defn naive-placement :- Game
   "Locks unit in a first good naive end position."
-  [{:keys [graphs] :as game} unit]
+  [{:keys [board graphs] :as game} unit]
   (let [graph (graphs unit)
         nodes (g/nodes graph)
-        first-good-xf (comp (remove-nodes-xf graph :sw :se) (take 1))
-        end-node (first (sequence first-good-xf nodes))]
+        first-good-xf
+        (comp
+          (remove-nodes-xf graph :sw :se)
+          (map #(vector % (count (unit-neighbors board %)))))
+        end-node (ffirst (sort-by second (sequence first-good-xf nodes)))]
     (update game :board #(lock-unit % end-node))))
 
 ; just puts a stone at the best local position
