@@ -134,6 +134,10 @@
 
 ;; ---- Phrases ------------------------------------------------------------------
 
+;; ia! ia!
+;; r'lyeh
+;; yuggoth
+
 (s/defn add-phrases :- Game
   [game phrasestrings]
   (let [phraseentry (fn [str]
