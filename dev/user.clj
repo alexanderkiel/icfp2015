@@ -68,8 +68,8 @@
 
 (defn init-but-keep-commands! [problem seed-idx]
   (let [cmds (:commands @game)]
-    (reset! game (assoc (prepare-game problem seed-idx) :commands cmds))
-    ):ok)
+    (reset! game (assoc (prepare-game problem seed-idx) :commands cmds)))
+  :ok)
 
 (defn step-game! []
   (swap! game (partial step (timed naive-placement)))
@@ -88,11 +88,29 @@
   (reset! b (:board @game))
   :ok)
 
+(defn show-next-start-node! []
+  (reset! b (assoc (:board @game) :units [((:start-nodes @game) (first (:unit-stack @game)))]))
+  :ok)
+
+(defn show-pruned-graph! []
+  (let [game @game
+        unit (first (:unit-stack game))
+        game (prune-game game unit)
+        graph ((:graphs game) unit)
+        board (assoc (:board game) :marked (mapcat :members (g/nodes graph)))]
+    (reset! b board))
+  :ok)
+
 (comment
   (def p0 (read-problem "problems/problem_0.json"))
   (init-game! p0 0)
+
+  (show-next-start-node!)
+  (show-pruned-graph!)
   (step-game!)
   (show-game!)
+
+  (show-next-start-node!)
   (step-game2!)
   (show-game!)
 
@@ -105,8 +123,10 @@
   (letter-to-cmd (first (@game :commands)))
 
   ((cmd-move :lock) (first (:units @b)))
-  (count (:unit-stack @game))
+
   (:board @game)
+  (:start-nodes @game)
+  (pprint *1)
   (:commands @game)
   (nodes-to-prune @game (first (:unit-stack @game))))
 

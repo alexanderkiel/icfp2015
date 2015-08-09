@@ -10,7 +10,7 @@
             [loom.label :as l]
             [icfp2015.core :refer :all]))
 
-;; ---- Probability stuff ------------------------------------------------------
+;; ---- Probability stuff -----------------------------------------------------
 
 (defn softmax [values]
   (let [lst (map #(Math/exp %) values)
@@ -20,11 +20,9 @@
 (defn sampler-max [values]
   (let [sm (softmax values)
         cummulative (reductions + sm)
-        sample (rand)
-        ]
-    (count (take-while #(< % sample) cummulative))
-    )
-  )
+        sample (rand)]
+    (count (take-while #(< % sample) cummulative))))
+
 (defn sampler-min [values]
   (sampler-max (map - values)))
 
@@ -57,7 +55,7 @@
      :board board
      :graphs graphs
      :node-indices (map-vals #(node-index board %) graphs)
-     :start-nodes (zipmap start-nodes units)
+     :start-nodes (zipmap units start-nodes)
      :unit-stack (source-units problem seed-idx)
      :commands []
      :finished false}))
@@ -129,17 +127,15 @@
     (conj (vec (map (fn [edge] (cmd-to-letter (:cmd (apply l/label g edge))))
                           (partition 2 1 path))) \newline )))
 
-
 ;; ---- Game ------------------------------------------------------------------
 
 (s/defn spawn-next :- Game
-  [{:keys [board unit-stack] :as game} :- Game ]
+  [{:keys [unit-stack] :as game} :- Game ]
   (if (empty? unit-stack)
     (assoc game :finished true)
     (let [unit (first unit-stack)]
       (-> (update game :board #(spawn % unit))
           (update :unit-stack rest)))))
-
 
 (defn- reachable-subgraph [graph start]
   (g/subgraph graph (alg-generic/bf-traverse (g/successors graph) start)))
@@ -148,12 +144,11 @@
   (-> (apply g/remove-nodes graph nodes-to-prune)
       (reachable-subgraph start)))
 
-(defn- prune-game
+(defn prune-game
   "Prunes the graph of unit in game."
   [game unit]
   (let [nodes-to-prune (nodes-to-prune game unit)
         start ((:start-nodes game) unit)]
-    (println :prune-game unit)
     (update-in game [:graphs unit] #(prune-graph % nodes-to-prune start))))
 
 (s/defn step :- Game
@@ -179,7 +174,6 @@
     (if (nil? unit)
       (spawn-next game)
       (let [newunit ((cmd-move cmd) unit)]
-        (print newunit)
         (if (= cmd :lock)
           (-> (update game :board #(lock-unit % newunit))
               (assoc-in [:board :units] [])
