@@ -122,9 +122,8 @@
         g (get graphs unit)
         path (ga/shortest-path g start-position target-location)
         nonlocking (map #(:cmd (apply l/label g %)) (g/out-edges g target-location))
-        lockingmove :sw                                        ;    (first (disj {:w :e :se :sw} nonlocking)
+        lockingmove (first (disj #{:w :e :se :sw} nonlocking))
         ]
-    (print lockingmove)
     (conj (vec (map (fn [edge] (cmd-to-letter (:cmd (apply l/label g edge))))
                           (partition 2 1 path)))
           (cmd-to-letter lockingmove))))

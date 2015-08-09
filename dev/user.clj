@@ -160,4 +160,12 @@
 
 (comment
   (pprint (tail-submissions #"Alex" 2))
+  (pprint (tail-submissions #"Georg" 6))
+  )
+
+(comment
+
+  (def g (g/digraph [1 2] [2 3] {3 [4] 5 [6 7]} 7 8 9))
+  (g/out-edges g 5)
+
   )

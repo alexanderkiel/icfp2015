@@ -154,7 +154,9 @@
   (sequence
     (comp
       (map (fn [[cmd move]] [cmd (move unit)]))
-      (filter #(valid? board (second %))))
+      (filter #(not (= unit (second %))))                   ; remove self-links
+      (filter #(valid? board (second %)))
+      )
     {:e move-east
      :w move-west
      :se move-south-east
