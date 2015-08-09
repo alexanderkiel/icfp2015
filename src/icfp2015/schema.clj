@@ -49,7 +49,7 @@
    :unit-stack [Unit]
    :graphs {Unit Graph}
    :node-indices {Unit NodeIndex}
-   :commands Char })
+   :commands [Char]})
 
 (def Placer
   "A placer calculates an end position (unit) of a unit in game."
