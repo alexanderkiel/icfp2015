@@ -55,9 +55,10 @@
      :board board
      :graphs graphs
      :node-indices (map-vals #(node-index board %) graphs)
-     :unit-stack (source-units problem seed-idx)}))
+     :unit-stack (source-units problem seed-idx)
+     :commands []}))
 
-;; ---- Naive ------------------------------------------------------------------
+;; ---- Naive -----------------------------------------------------------------
 
 (s/defn naive-placement :- Unit
   "Selects the locally best location for the given unit and returns its final location"
