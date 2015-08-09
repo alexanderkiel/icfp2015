@@ -40,6 +40,20 @@
     (first sortedlocs)))
 
 
+(defn softmax [values]
+  (let [lst (map  #(Math/exp %) values)
+        sum (reduce + lst)]
+    (map #(/ % sum) lst)))
+
+(defn sampler [values]
+  (let [sm (softmax values)
+        cummulative (reductions + sm)
+        sample (rand)
+        ]
+    (count (take-while #(< % sample) cummulative))
+    )
+  )
+
 ; just puts a stone at the best local position
 (defn play-naive-tetris
   [game]
