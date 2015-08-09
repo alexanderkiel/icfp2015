@@ -11,7 +11,8 @@
             [icfp2015.tetris :refer :all]
             [org.httpkit.client :as http]
             [clojure.data.json :as json]
-            [clj-time.format :as f]))
+            [clj-time.format :as f]
+            [loom.alg :as ga]))
 
 (defonce stop (server/start 5011))
 
@@ -133,8 +134,11 @@
   (init-but-keep-commands! p0 0)
   (micro-step!)
 
+  (best-path @game {:members #{[0 0]}, :pivot [0 0]} {:members #{[9 9]}, :pivot [9 9]})
+
+
   (let [u (second (first (:start-nodes @game)))]
-    (walk-graph (second (first (:graphs @game))) u [:w :w :sw]))
+    (walk-graph (second (first (:graphs @game))) #{}  u [:w :w :sw]))
   (select-keys (swap! game spawn-next) [:board :unit-stack])
   (select-keys @game [:commands :board :unit-stack :finished])
   (select-keys @game [:commands :finished])
@@ -188,5 +192,6 @@
 
   (def g (g/digraph [1 2] [2 3] {3 [4] 5 [6 7]} 7 8 9))
   (g/out-edges g 5)
+  (ga/shortest-path g 1 3)
 
   )

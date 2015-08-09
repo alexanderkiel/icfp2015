@@ -129,6 +129,7 @@
         path (ga/shortest-path graph start-pos target-location)
         non-locking-cmds (map #(:cmd (apply l/label graph %)) (g/out-edges graph target-location))
         locking-cmd (first (apply disj #{:w :e :se :sw} non-locking-cmds))]
+    ;(print unit start-pos target-location)
     (conj (vec (map (fn [edge] (cmd-to-letter (:cmd (apply l/label graph edge))))
                           (partition 2 1 path)))
           (cmd-to-letter locking-cmd))))
@@ -150,7 +151,7 @@
 
 (defn walk-graph
   "goes from start with cmds along true"
-  [g start cmds]
+  [g visited start cmds]
   (let [moveable
         (fn [loc cmd]
           (if-let [options (map (fn [edge] [(:cmd (apply l/label g edge)), edge]) (g/out-edges g loc))]
@@ -158,11 +159,61 @@
             )
           )]
     (loop [node start
-           cmds cmds]
+           cmds cmds
+           vis  (conj visited start)]
       (if-let [cmd (first cmds)]
         (if-let [[_ tgt] (moveable node cmd)]
-          (recur tgt (rest cmds)) nil)
-        node))))
+          (if (vis tgt) nil (recur tgt (rest cmds) (conj visited node)))
+          nil)
+        [node vis]))))
+
+(defn- sel-random [coll]
+  (nth coll (rand-int (count coll))))
+
+; (sel-random {1 2 3 4 5 6})
+
+(defn- max-by [keyfn coll]
+  (reduce #(if (> (keyfn %1) (keyfn %2)) %1 %2) coll)
+  )
+; (max-by second [[:a 2] [:b 3] [:c 1]])
+
+(defn finish-path
+  [graph visited start-pos target-location]
+  (let [path (ga/shortest-path graph start-pos target-location)
+        non-locking-cmds (map #(:cmd (apply l/label graph %)) (g/out-edges graph target-location))
+        locking-cmd (first (apply disj #{:w :e :se :sw} non-locking-cmds))]
+    (conj (vec (map (fn [edge] (cmd-to-letter (:cmd (apply l/label graph edge))))
+                    (partition 2 1 path)))
+          (cmd-to-letter locking-cmd))))
+
+(defn- traverse [graph phrases target-location node visited path score phrase [bestpath bestscore]]
+  (println phrase node score bestscore)
+  (if phrase
+    (if-let [[end vis'] (walk-graph graph visited node phrase)]
+      (let [path' (conj path (:string (phrases phrase)))
+            _ (println (phrases phrase))
+            score' (+ (:score (phrases phrase)) score)
+            children
+            (map #(traverse graph phrases target-location
+                            end vis' path' score' % [bestpath bestscore]
+                         ) (cons nil (keys phrases)))]
+        (max-by second children))
+      [bestpath bestscore ])  ; can not apply leave]
+    (if (< score bestscore) ; try direct
+      [bestpath bestscore]  ; if worst than best, leave
+      (if-let [restpath (finish-path graph visited node target-location)]
+        [(conj path restpath) score]
+        [bestpath bestscore])  ; could not finish leave
+      ))
+  )
+
+(s/defn best-path
+  [{:keys [board graphs start-nodes phrases] :as game} :- Game, unit :- Unit, target-location :- Unit]
+  (let [start-pos (start-nodes unit)
+        graph (graphs unit)]
+    (traverse graph phrases target-location start-pos #{} [] 0 (ffirst phrases) [[] 0])
+    ))
+
 
 
 
