@@ -75,7 +75,8 @@
         first-good-xf
         (comp
           (remove-nodes-xf graph :sw :se)
-          (map #(vector % (count (unit-neighbors board %)))))]
+          (map #(vector % (+ (count (unit-neighbors board %))
+                             (unit-distance-over-bottom board %)))))]
     (ffirst (sort-by second (sequence first-good-xf nodes)))))
 
 ; just puts a stone at the best local position

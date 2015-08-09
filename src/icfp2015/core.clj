@@ -139,6 +139,11 @@
        (seq)
        (filter-valid-cells board)))
 
+(s/defn unit-distance-over-bottom :- Int
+  [board :- Board, {:keys [members]} :- Unit]
+  (let [max-y (apply max (map second members))]
+    (- (:height board) max-y 1)))
+
 ;; ---- Graph -----------------------------------------------------------------
 
 (s/defn valid? :- Bool
