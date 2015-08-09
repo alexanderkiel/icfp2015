@@ -36,11 +36,16 @@
    :sourceLength Int
    :sourceSeeds [Int]})
 
+(def NodeIndex
+  "An index from a cell on the board to nodes in a graph which occupy it."
+  {Cell [Unit]})
+
 (def Game
-  {:seedIdx Int
+  {:seed-idx Int
    :board Board
-   :unitstack [Unit]
-   :graphs {Unit Graph}})
+   :unit-stack [Unit]
+   :graphs {Unit Graph}
+   :node-indices {Unit NodeIndex}})
 
 (def Placer
   "A placer calculates an end position (unit) of a unit in game."

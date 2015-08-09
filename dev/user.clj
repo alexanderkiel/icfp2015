@@ -85,7 +85,7 @@
   (step-game2!)
   (show-game!)
 
-  (count (:unitstack @game))
+  (count (:unit-stack @game))
   (:board @game)
 
 )

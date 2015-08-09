@@ -152,6 +152,19 @@
           (into (rest units) (remove #(contains? (g/nodes g) %) (map second moves)))))
       g)))
 
+(defn- all-cells [board]
+  (for [x (range (:width board))
+        y (range (:height board))]
+    [x y]))
+
+(defn find-nodes [graph cell]
+  (filter (fnk [members] (some #{cell} members)) (g/nodes graph)))
+
+(s/defn node-index :- NodeIndex
+  "Creates a node index for graph on board."
+  [board :- Board graph :- Graph]
+  (map-from-keys #(find-nodes graph %) (all-cells board)))
+
 (s/defn remove-nodes-xf
   "Xform which removes all nodes with outgoing edges of cmds."
   [graph :- Graph & cmds :- [Cmd]]

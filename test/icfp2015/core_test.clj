@@ -73,3 +73,12 @@
 (deftest rng-test
   (is (= [0 24107 16552 12125 9427 13152 21440 3383 6873 16117]
          (take 10 (rng 17)))))
+
+(deftest node-index-test
+  (let [board (board 2 2)
+        graph (graph board (unit [0 0] [0 0]))]
+    (is (= (node-index board graph)
+           {[0 0] [(unit [0 0] [0 0])]
+            [1 0] [(unit [1 0] [1 0])]
+            [0 1] [(unit [0 1] [0 1])]
+            [1 1] [(unit [1 1] [1 1])]}))))

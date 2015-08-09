@@ -1,4 +1,5 @@
 (ns icfp2015.tetris
+  (:use plumbing.core)
   (:require [clojure.set :as set]
             [schema.core :as s :refer [Bool Int]]
             [icfp2015.schema :refer :all]
@@ -27,23 +28,33 @@
 
 ;; ---- Init ------------------------------------------------------------------
 
+(defn- graphs [board {:keys [units]}]
+  (->> units
+       (map #(move-to-spawn-pos (:width board) %))
+       (map #(graph board %))
+       (zipmap units)))
+
+(defn- source-seed [problem seed-idx]
+  (nth (:sourceSeeds problem) seed-idx))
+
+(defn- source-units
+  "Returns a seq of source units according the seed index."
+  [problem seed-idx]
+  (->> (rng (source-seed problem seed-idx))
+       (map #(mod % (count (:units problem))))
+       (map #(nth (:units problem) %))
+       (take (:sourceLength problem))))
+
 (s/defn prepare-game :- Game
   "Returns a game from the problem with given seed index."
-  [problem :- Problem seedidx :- Int]
-  (let [punits (:units problem)
-        unitnum (count punits)
-        board (problem->board problem)
-        graphs (zipmap punits
-                       (map #(graph board %)
-                            (map #(move-to-spawn-pos (:width board) %) punits)))
-        unitindices (map #(mod % unitnum)
-                         (take (:sourceLength problem)
-                               (rng (nth (:sourceSeeds problem) seedidx))))
-        sequnits (map #(nth punits %) unitindices)]
-    {:seedIdx seedidx
+  [problem :- Problem seed-idx :- Int]
+  (let [board (problem->board problem)
+        graphs (graphs board problem)]
+    {:seed-idx seed-idx
      :board board
      :graphs graphs
-     :unitstack sequnits}))
+     :node-indices (map-vals #(node-index board %) graphs)
+     :unit-stack (source-units problem seed-idx)}))
 
 ;; ---- Naive ------------------------------------------------------------------
 
@@ -76,10 +87,10 @@
 
   Pops one unit from unit stack and locks it at its end position. Does nothing
   if unit stack is empty."
-  [placer :- Placer {:keys [unitstack] :as game} :- Game]
-  (if-let [unit (first unitstack)]
+  [placer :- Placer {:keys [unit-stack] :as game} :- Game]
+  (if-let [unit (first unit-stack)]
     (let [end-pos (placer game unit)]
       (-> (update game :board #(lock-unit % end-pos))
-          (update :unitstack rest)))
+          (update :unit-stack rest)))
     game))
 
