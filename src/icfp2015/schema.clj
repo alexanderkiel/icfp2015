@@ -1,6 +1,6 @@
 (ns icfp2015.schema
   "Schemas for things in the game."
-  (:require [schema.core :as s :refer [Int]]
+  (:require [schema.core :as s :refer [Int Char]]
             [loom.graph :as g]))
 
 (def Cell
@@ -13,6 +13,9 @@
 
 (def Cmd
   (s/enum :e :w :se :sw :cw :ccw))
+
+(def Char
+  (s/pred char?))
 
 (def Move
   [(s/one Cmd "cmd")
@@ -46,8 +49,7 @@
    :unit-stack [Unit]
    :graphs {Unit Graph}
    :node-indices {Unit NodeIndex}
-   :commands []
-   })
+   :commands Char })
 
 (def Placer
   "A placer calculates an end position (unit) of a unit in game."
