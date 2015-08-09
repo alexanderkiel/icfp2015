@@ -113,6 +113,7 @@
   [board :- Board unit :- Unit]
   (->> (set/difference (into #{} (mapcat c/neighbors) (:members unit))
                        (set (:members unit)))
+       (seq)
        (filter-valid-cells board)))
 
 ;; ---- Graph -----------------------------------------------------------------
