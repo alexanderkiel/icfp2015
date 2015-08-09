@@ -51,7 +51,8 @@
    :node-indices {Unit NodeIndex}
    :start-nodes {Unit Unit}
    :commands [Char]
-   :finished Bool})
+   :finished Bool
+   })
 
 (def Placer
   "A placer calculates an end position (unit) of a unit in game."

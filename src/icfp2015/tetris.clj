@@ -103,7 +103,7 @@
                     :se  \o
                     :cw  \r
                     :ccw \x
-                    :lock \newline
+                    :lock \space
                     :noop \tab})
 (def letter-to-cmd
   (apply hash-map (concat (interleave [\p, \', \!, \., \0, \3] (repeat :w))
@@ -125,7 +125,7 @@
         path (ga/shortest-path g start-position target-location)
         ]
     (conj (vec (map (fn [edge] (cmd-to-letter (:cmd (apply l/label g edge))))
-                          (partition 2 1 path))) \newline )))
+                          (partition 2 1 path))) \space )))
 
 ;; ---- Game ------------------------------------------------------------------
 
