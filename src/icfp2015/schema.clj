@@ -25,8 +25,7 @@
   {:width Int
    :height Int
    :filled (s/pred set?)
-   :units [Unit]
-   :graphs {Unit Graph}})
+   :units [Unit]})
 
 (def Problem
   {:id Int
@@ -38,9 +37,8 @@
    :sourceSeeds [Int]})
 
 (def Game
-  {:seedIdx Int                                             ; seed index
+  {:seedIdx Int
    :board Board
-   :unitstack [Unit]                                        ; remaining pieces to play
-   :graphs (s/pred map?)                                    ; unit->graph
-   })
+   :unitstack [Unit]
+   :graphs {Unit Graph}})
 

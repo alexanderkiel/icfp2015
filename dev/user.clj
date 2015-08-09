@@ -12,14 +12,6 @@
 
 (defonce stop (server/start 5011))
 
-(def g (g/weighted-digraph [1 2 1] [2 3 2] [3 1 1]))
-
-(g/nodes g)
-(g/edges g)
-(g/successors g 2)
-(g/out-degree g 2)
-(g/weight g 2 3)
-
 (def b (atom {}))
 (def g (atom {}))
 (add-watch b :send (fn [_ _ _ b] (put! server/ch b)))

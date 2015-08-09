@@ -7,9 +7,7 @@
             [loom.label :as l]
             [icfp2015.core :refer :all]))
 
-
-
-(s/defn prepare-game
+(s/defn prepare-game :- Game
   "Returns a game from the problem with given seed index."
   [problem :- Problem seedidx :- Int]
   (let [punits (:units problem)
@@ -17,9 +15,11 @@
         board (problem->board problem)
         graphs (zipmap punits (map #(graph board %) punits))
         unitindices (map #(mod % unitnum) (take (:sourceLength problem) (rng (nth (:sourceSeeds problem) seedidx))))
-        sequnits (map #(nth  punits %) unitindices)
-        ]
-    {:seedIdx seedidx, :board board, :graphs graphs, :unitstack sequnits})
+        sequnits (map #(nth punits %) unitindices)]
+    {:seedIdx seedidx
+     :board board
+     :graphs graphs
+     :unitstack sequnits})
   )
 
 

@@ -156,5 +156,4 @@
 ;; ---- Problem ---------------------------------------------------------------
 
 (defnk problem->board :- Board [width height filled]
-  (-> (apply board width height filled)
-      (assoc :graphs {})))
+  (apply board width height filled))
