@@ -92,6 +92,10 @@
   (reset! b (:board @game))
   :ok)
 
+(defn add-phrases! [phrases]
+  (swap! game #(add-phrases % phrases))
+  (:phrases @game))
+
 (defn micro-step! []
   (swap! game micro-step)
   (reset! b (:board @game))
@@ -113,6 +117,7 @@
 (comment
   (def p0 (read-problem "problems/problem_0.json"))
   (init-game! p0 0)
+  (add-phrases! ["Ei!","blast"])
 
   (show-next-start-node!)
   (show-pruned-graph!)
@@ -128,6 +133,8 @@
   (init-but-keep-commands! p0 0)
   (micro-step!)
 
+  (let [u (second (first (:start-nodes @game)))]
+    (walk-graph (second (first (:graphs @game))) u [:w :w :sw]))
   (select-keys (swap! game spawn-next) [:board :unit-stack])
   (select-keys @game [:commands :board :unit-stack :finished])
   (select-keys @game [:commands :finished])
@@ -173,6 +180,7 @@
 (comment
   (submit-game "Alex" @game)
   (pprint (tail-submissions #"Alex" 2))
+  (submit-game "Georg" @game)/
   (pprint (tail-submissions #"Georg" 6))
   )
 

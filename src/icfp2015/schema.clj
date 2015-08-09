@@ -46,6 +46,10 @@
   "An index from a cell on the board to nodes in a graph which occupy it."
   {Cell [Unit]})
 
+(def Phrase
+  {:string [Char]
+   :score Int})
+
 (def Game
   {:problem-id Int
    :seed Int
@@ -56,6 +60,7 @@
    :start-nodes {Unit Unit}
    :commands [Char]
    :finished Bool
+   :phrases {[Cmd] Phrase}
    })
 
 (def Placer

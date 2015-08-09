@@ -1,6 +1,7 @@
 (ns icfp2015.tetris
   (:use plumbing.core)
   (:require [clojure.tools.logging :as log]
+            [clojure.string :as str]
             [schema.core :as s :refer [Bool Int]]
             [icfp2015.schema :refer :all]
             [icfp2015.cell :as c]
@@ -60,7 +61,9 @@
      :start-nodes (zipmap units start-nodes)
      :unit-stack (source-units problem seed)
      :commands []
-     :finished false}))
+     :finished false
+     :phrases {}}))
+
 
 ;; ---- Naive -----------------------------------------------------------------
 
@@ -128,6 +131,35 @@
     (conj (vec (map (fn [edge] (cmd-to-letter (:cmd (apply l/label graph edge))))
                           (partition 2 1 path)))
           (cmd-to-letter locking-cmd))))
+
+;; ---- Phrases ------------------------------------------------------------------
+
+(s/defn add-phrases :- Game
+  [game phrasestrings]
+  (let [phraseentry (fn [str]
+                      (let [str' (str/lower-case str)]
+                      [(map letter-to-cmd str') {:string str', :score (count str')}]))]
+    (assoc game :phrases
+                (into {} (map phraseentry phrasestrings)))))
+
+
+(defn walk-graph
+  "goes from start with cmds along true"
+  [g start cmds]
+  (let [moveable
+        (fn [loc cmd]
+          (if-let [options (map (fn [edge] [(:cmd (apply l/label g edge)), edge]) (g/out-edges g loc))]
+            (some #(when (= cmd (first %)) (second %)) options) nil
+            )
+          )]
+    (loop [node start
+           cmds cmds]
+      (if-let [cmd (first cmds)]
+        (if-let [[_ tgt] (moveable node cmd)]
+          (recur tgt (rest cmds)) nil)
+        node))))
+
+
 
 ;; ---- Game ------------------------------------------------------------------
 
