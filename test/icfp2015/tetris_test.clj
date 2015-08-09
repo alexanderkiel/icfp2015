@@ -12,5 +12,5 @@
 
 (deftest step-test
   (let [game (prepare-game (read-problem "problems/problem_0.json") 0)]
-    (given (step naive-placement game)
+    (given (step naive-placement stupid-path game)
       :unit-stack :< (:unit-stack game))))
