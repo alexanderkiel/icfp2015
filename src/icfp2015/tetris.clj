@@ -7,19 +7,45 @@
             [loom.label :as l]
             [icfp2015.core :refer :all]))
 
+;; ---- Probability stuff ------------------------------------------------------
+
+(defn softmax [values]
+  (let [lst (map  #(Math/exp %) values)
+        sum (reduce + lst)]
+    (map #(/ % sum) lst)))
+
+(defn sampler-max [values]
+  (let [sm (softmax values)
+        cummulative (reductions + sm)
+        sample (rand)
+        ]
+    (count (take-while #(< % sample) cummulative))
+    )
+  )
+(defn sampler-min [values]
+  (sampler-max (map - values)))
+
+;; ---- Init ------------------------------------------------------------------
+
 (s/defn prepare-game :- Game
   "Returns a game from the problem with given seed index."
   [problem :- Problem seedidx :- Int]
   (let [punits (:units problem)
         unitnum (count punits)
         board (problem->board problem)
-        graphs (zipmap punits (map #(graph board %) (map #(move-to-spawn-pos (:width board) %) punits)))
-        unitindices (map #(mod % unitnum) (take (:sourceLength problem) (rng (nth (:sourceSeeds problem) seedidx))))
+        graphs (zipmap punits
+                       (map #(graph board %)
+                            (map #(move-to-spawn-pos (:width board) %) punits)))
+        unitindices (map #(mod % unitnum)
+                         (take (:sourceLength problem)
+                               (rng (nth (:sourceSeeds problem) seedidx))))
         sequnits (map #(nth punits %) unitindices)]
     {:seedIdx seedidx
      :board board
      :graphs graphs
      :unitstack sequnits}))
+
+;; ---- Naive ------------------------------------------------------------------
 
 (s/defn naive-placement :- Game
   "Locks unit in a first good naive end position."
@@ -36,37 +62,24 @@
 ; just puts a stone at the best local position
 (defn naive-placement2
   "game -> unit-final-location"
-  [game]
-  (let [u (first (:unitstack game))
-        g (get (:graphs game) u)
-        b (:board game)
+  [{:keys [graphs] :as game} unit]
+  (let [g (graphs unit)
         nodes (g/nodes g)
+        b (:board game)
         targetlocations (into [] (remove-nodes-xf g :sw :se) nodes)
-        sortedlocs (sort-by second (map #([%, (count (unit-neighbors b %))]) targetlocations))
+        scores (map (count #(unit-neighbors b %)) targetlocations)
+        loc (nth targetlocations (sampler-min scores))
         ]
-    (first sortedlocs)))
+    loc))
 
-
-(defn softmax [values]
-  (let [lst (map  #(Math/exp %) values)
-        sum (reduce + lst)]
-    (map #(/ % sum) lst)))
-
-(defn sampler [values]
-  (let [sm (softmax values)
-        cummulative (reductions + sm)
-        sample (rand)
-        ]
-    (count (take-while #(< % sample) cummulative))
-    )
-  )
 (s/defn step :- Game
   "Plays one step in the game.
 
   Pops one unit from unit stack and locks it at its end position. Does nothing
   if unit stack is empty."
-  [{:keys [unitstack] :as game} :- Game]
+  [ placer {:keys [unitstack] :as game} :- Game]
   (if-let [unit (first unitstack)]
-    (-> (naive-placement game unit)
+    (-> (placer game unit)
         (update :unitstack rest))
     game))
+

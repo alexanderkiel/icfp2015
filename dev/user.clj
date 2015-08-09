@@ -67,8 +67,13 @@
   :ok)
 
 (defn step-game! []
-  (swap! game step)
+  (swap! game (partial step naive-placement))
   :ok)
+
+(defn step-game2! []
+  (swap! game (partial step naive-placement2))
+  :ok)
+
 
 (defn show-game! []
   (reset! b (:board @game))
@@ -78,6 +83,7 @@
   (def p0 (read-problem "problems/problem_0.json"))
   (init-game! p0 0)
   (step-game!)
+  (step-game2!)
   (show-game!)
 
   (count (:unitstack @game))
