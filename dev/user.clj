@@ -7,7 +7,8 @@
             [loom.label :as l]
             [icfp2015.server :as server]
             [icfp2015.io :refer [read-problem]]
-            [icfp2015.core :refer :all]))
+            [icfp2015.core :refer :all]
+            [icfp2015.tetris :as t :refer :all]))
 
 (defonce stop (server/start 5011))
 
@@ -20,6 +21,7 @@
 (g/weight g 2 3)
 
 (def b (atom {}))
+(def g (atom {}))
 (add-watch b :send (fn [_ _ _ b] (put! server/ch b)))
 
 (defn find-bottom-nodes
@@ -29,7 +31,7 @@
         nodes (g/nodes g)]
     (->> (into []
            (comp
-             (  g :sw :se)
+             (remove-nodes-xf  g :sw :se)
              (take 6))
            nodes)
          (assoc board :units))))
@@ -66,6 +68,17 @@
 
   )
 
+(defn show-game! [game]
+  (swap! b (:board game)))
+
+(comment
+  (def p0 (read-problem "problems/problem_0.json"))
+  (reset! g (t/prepare-game p0 0))
+  (show-game! @g)
+  (def g0 (t/prepare-game p0 0))
+  (:unitstack g0)
+)
+
 (comment
 
   (moves @b (first (:units @b)))
@@ -77,6 +90,11 @@
 
   )
 
+(defn random-gen [seed]
+  (let [iter (fn [x] (mod (+ (* x 1103515245) 12345) 0xFFFFFFFF))]
+    (map #(bit-and (bit-shift-right % 16) 0x7FFFF) (iterate iter seed))
+    ))
+
 (comment
-  (take 10 (rng 17))
+  (take 10 (random-gen 17))
   )

@@ -36,3 +36,11 @@
    :filled [Cell]
    :sourceLength Int
    :sourceSeeds [Int]})
+
+(def Game
+  {:seedIdx Int                                             ; seed index
+   :board Board
+   :unitstack [Unit]                                        ; remaining pieces to play
+   :graphs (s/pred map?)                                    ; unit->graph
+   })
+
