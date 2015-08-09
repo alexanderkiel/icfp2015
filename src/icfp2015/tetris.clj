@@ -6,6 +6,7 @@
             [icfp2015.cell :as c]
             [loom.graph :as g]
             [loom.alg :as ga]
+            [loom.alg-generic :as alg-generic]
             [loom.label :as l]
             [icfp2015.core :refer :all]))
 
@@ -140,11 +141,20 @@
           (update :unit-stack rest)))))
 
 
+(defn- reachable-subgraph [graph start]
+  (g/subgraph graph (alg-generic/bf-traverse (g/successors graph) start)))
+
+(defn- prune-graph [graph nodes-to-prune start]
+  (-> (apply g/remove-nodes graph nodes-to-prune)
+      (reachable-subgraph start)))
+
 (defn- prune-game
   "Prunes the graph of unit in game."
   [game unit]
-  (let [nodes-to-prune (nodes-to-prune game unit)]
-    (update-in game [:graphs unit] #(apply g/remove-nodes % nodes-to-prune))))
+  (let [nodes-to-prune (nodes-to-prune game unit)
+        start ((:start-nodes game) unit)]
+    (println :prune-game unit)
+    (update-in game [:graphs unit] #(prune-graph % nodes-to-prune start))))
 
 (s/defn step :- Game
   "Plays one step in the game.
