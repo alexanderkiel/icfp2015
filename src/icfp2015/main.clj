@@ -92,10 +92,10 @@
       (let [game (solve-problem phrases path-gen problem seedIdx)]
         (println (apply str (:commands game)))
         (println "Powerscore: " (:powerscore game) "\tMovescore: " (:movescore game))
-        (if (not (= 0 submit))
-          (let [_ (println "Submitting...")]
-            (submit-game name game)
-            )))
+        ;   (if (not (= 0 submit))
+        (let [_ (println "Submitting...")]
+          (submit-game name game)
+          ))
       (solve phrases path-gen problem name)
       )
     )

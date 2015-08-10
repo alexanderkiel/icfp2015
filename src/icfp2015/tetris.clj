@@ -106,7 +106,7 @@
 ;{k, s, t, u, w, x}	rotate counter-clockwise
 ;\t, \n, \r	(ignored)
 
-(def cmd-to-letter {:w   \p                                   ;\! ;Todo: use ! again
+(def cmd-to-letter {:w   \!
                     :e   \e
                     :sw  \i
                     :se  \o

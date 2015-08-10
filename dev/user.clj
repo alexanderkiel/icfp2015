@@ -87,6 +87,7 @@
   (swap! game (partial play naive-placement (partial best-path depth)))
   :ok)
 
+
 (defn step-game2! []
   (swap! game (partial step naive-placement-sample stupid-path))
   (reset! b (:board @game))
@@ -241,7 +242,7 @@
 ; ------- GEORGS SUBMIT AREA
 (comment
 
-  (def p0 (read-problem "problems/problem_2.json"))
+  (def p0 (read-problem "problems/problem_24.json"))
   (init-game! ["Ei!","ia! ia!", "r'lyeh", "yuggoth","Planet 10"] p0 0)
   (set! *print-length* 1000)
   (pprint (:phrases @game))
@@ -277,18 +278,19 @@
                "Matrix"
                ])
 
-  (def p0 (read-problem "problems/problem_9.json"))
-  (init-game! ["Ei!","ia! ia!", "r'lyeh", "yuggoth","Planet 10"] p0 3)
-  (init-game! ["Leslie"] p0 0)
+  (def p0 (read-problem "problems/problem_3.json"))
+  (init-game! ["Ei!","ia! ia!", "r'lyeh", "yuggoth","Planet 10","pppppp" "bbbbbb"] p0 0)
+  (init-game! ["ICFP"] p0 0)
   (init-game! to-try p0 0)
   (show-game!)
   (step-game-best! 5)
+  (show-next-start-node!)
 
   (step-game!)
-  (play-game-best! 5)
+  (play-game-best! 2)
   (:powerscore @game)
   (apply str (:commands @game))
-  (:sourceSeeds p0)
+  (count (:sourceSeeds p0))
 
 
 
@@ -299,6 +301,38 @@
   (println (apply str (:commands last-game)))
   (println "Powerscore: " (:powerscore last-game) "\tMovescore: " (:movescore last-game))
   (submit-game "Georg bk" last-game)
-  (pprint (tail-submissions #"Georg22" 11))
+  (pprint (tail-submissions 2 #"Alex" 10))
   )
 
+
+(defn- generic-tree-search-traverse [calcnode merge children depth acc parent node]
+   (let [[val acc'] (calcnode depth acc parent node)]
+     (if val
+       val
+      (let [chldrn (children depth acc' node)
+            childrenvalues (map #(generic-tree-search-traverse
+                                  calcnode merge children (dec depth) acc' node % ) chldrn)]
+        (merge childrenvalues))
+      )
+    )
+  )
+
+
+(defn generic-tree-search
+        "Calculates a depth first search with edge to with merge steps,
+        e.g. to calculate the best possible path"
+        [ calcnode merge children  depth acc start]
+        (let [chldrn (children depth acc start)
+              childrenvalues (map #(generic-tree-search-traverse
+                                    calcnode merge children depth acc start % ) chldrn )]
+              (merge childrenvalues))
+  )
+
+(comment
+  (generic-tree-search (fn [depth acc _ node] (if (< depth 1) [(+ acc node),nil] [nil, (+ acc node)]))
+                       (fn [vals] (apply max vals))
+                       (fn [acc depth node] [(rand), (rand), (rand)])
+                       10
+                       0
+                       0)
+  )
