@@ -1,17 +1,13 @@
 (ns icfp2015.main
-(:require [clojure.core.async :refer [put! close!]]
-  [clojure.pprint :refer [pprint]]
-  [criterium.core :refer [quick-bench]]
-  [loom.graph :as g]
-  [loom.label :as l]
-  [icfp2015.server :as server]
-  [icfp2015.io :refer [read-problem]]
-  [icfp2015.core :refer :all]
-  [icfp2015.tetris :refer :all]
-  [org.httpkit.client :as http]
-  [clojure.data.json :as json]
-  [clj-time.format :as f]
-  [loom.alg :as ga]))
+  (:use plumbing.core)
+  (:require
+    [clojure.pprint :refer [pprint]]
+    [icfp2015.io :refer [read-problem]]
+    [icfp2015.core :refer :all]
+    [icfp2015.tetris :refer :all]
+    [org.httpkit.client :as http]
+    [clojure.data.json :as json]
+    [clj-time.format :as f]))
 
 ;; ---- Game ------------------------------------------------------------------
 
@@ -60,6 +56,9 @@
                           :basic-auth ["" (System/getenv "API_TOKEN")]})]
     (:status resp)))
 
+(defn solve-problem [phrases path-gen problem seed-idx]
+  (let [game (add-phrases (prepare-game problem seed-idx) phrases)]
+    (play naive-placement path-gen game)))
 
 (defn -main [& args]
   (println "I C Frantic People")
@@ -73,20 +72,17 @@
         problem (read-problem problemfile)
         submit false
         name "Script"
+        game (solve-problem phrases (if simple stupid-path (partial best-path depth))
+                            problemfile seedIdx)
         ]
 
-  (init-game! problem seedIdx)
-
-  (add-phrases! phrases)
-
-  (if simple
-    (play-game!)
-    (play-game-best! depth))
-
   (if submit
-    (let []
-      (submit-game name @game))
-    (println (apply str (:commands @game))) )
+    (let [_ (println "Submitting...")]
+      (submit-game name game))
+    (println (apply str (:commands game))) )
     ; (pprint (tail-submissions #"Georg" 6))
-
+   :ok
   ))
+
+(comment
+  (-main "pla"))
