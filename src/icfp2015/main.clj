@@ -56,36 +56,45 @@
                           :basic-auth ["" (System/getenv "API_TOKEN")]})]
     (:status resp)))
 
-(defn solve-problem [phrases path-gen problem seed-idx]
-  (let [game (add-phrases (prepare-game problem seed-idx) phrases)]
-    (play naive-placement path-gen game)))
+(defn solve-problem [phrases path-gen problem seed-idx submit name]
+  (let [gameinit (add-phrases (prepare-game problem seed-idx) phrases)
+        game (play naive-placement path-gen gameinit)]
+    (println (apply str (:commands game)))
+    (println "Powerscore: " (:powerscore game) "\tMovescore: " (:movescore game))
+    (if (not (= 0 submit))
+      (let [_ (println "Submitting...")]
+        (submit-game name game)
+    ))))
+
+(defn solve [phrases path-gen problem name]
+  (doseq [game (pmap (partial solve-problem phrases path-gen problem)
+                     (range (count (:sourceSeeds problem))))]
+    (let [_ (println "Submitting...")]
+      (println "Powerscore: " (:powerscore game) "\tMovescore: " (:movescore game))
+      (submit-game name game))
+    ))
+
 
 (defn -main [& args]
   (println "I C Frantic People")
 
   (let [argmap (apply hash-map args)
         problemfile (get argmap "-f" "problems/problem_0.json")
-        seedIdx (read-string (get argmap "-s" "0"))
-        phrases (get argmap "-p" ["Ei!", "ia! ia!", "r'lyeh", "yuggoth","Planet 10"])
+        seedIdx (read-string (get argmap "-s" "-1"))
+        phrases ["Ei!", "ia! ia!", "r'lyeh", "yuggoth","Planet 10"]
         depth (read-string (get argmap "-d" "5"))
-        simple (get argmap "-simple" false)
-        submit (get argmap "-submit" false)
+        simple (read-string (get argmap "-simple" "0"))
+        submit (read-string (get argmap "-submit" "0"))                 ; allways if no seed is given
         name (get argmap "-name" "Georg Script")
         problem (read-problem problemfile)
-        game (solve-problem phrases (if simple stupid-path (partial best-path depth))
-                            problem seedIdx)
+        path-gen (if (= simple 0) (partial best-path depth) stupid-path)
         ]
     (println argmap)
-    (println  phrases  simple depth problemfile seedIdx submit)
-
-    (println (apply str (:commands game)))
-    (println "Powerscore: " (:powerscore game) "\tMovescore: " (:movescore game))
-
-    (if submit
-      (let [_ (println "Submitting...")]
-        (submit-game name game))
-      )
-    ;(pprint (tail-submissions #"Georg" 6))
+    (println seedIdx)
+    (if (> seedIdx -1)
+      (solve-problem phrases path-gen problem seedIdx submit name)
+      (solve phrases path-gen problem name)
+           )
     )
   )
 

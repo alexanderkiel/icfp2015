@@ -237,7 +237,7 @@
 ; ------- GEORGS SUBMIT AREA
 (comment
 
-  (def p0 (read-problem "problems/problem_1.json"))
+  (def p0 (read-problem "problems/problem_8.json"))
   (init-game! to-try p0 0)
   (set! *print-length* 1000)
   (pprint (:phrases @game))
@@ -255,38 +255,42 @@
   ; ---- Phrase test
 
   (def to-try ["ICFP"                                       ;not found
-               "Ron"                                        ; is not
-               "Tony"                                       ; is not
+               ;"Ron"                                        ; is not
+               ;"Tony"                                       ; is not
                "Leslie"
                "Barb"
                "Looks like our handler isn't here yet."
                "Robin"
-               "Excellent!"                                 ; is not
+               ;"Excellent!"                                 ; is not
                "The fate of the world is in your hands."
-               "Conway"                                     ; is not
+               ;"Conway"                                     ; is not
                "Cocke"
                "Hopcroft"                                   ; not found
-               "Backus"
+               ;"Backus"                                     ; is not
                "Bigboote"                                   ; not found 1
-               "Planet 10"                                  ; !Juhu
+               ;"Planet 10"                                  ; !Juhu
                "monkeyboy!"                                 ; not found
+               "Matrix"
                ])
 
   (def p0 (read-problem "problems/problem_3.json"))
-  (init-game! ["Backus" ] p0 0)
+  (init-game! ["Leslie"] p0 0)
+  (init-game! to-try p0 0)
   (show-game!)
   (step-game-best! 5)
   (:powerscore @game)
+  (apply str (:commands @game))
+  (:sourceSeeds p0)
 
 
 
-  (def last-game (solve-problem ["Looks like our handler isn't here yet."]
-                                (partial best-path 3)
+  (def last-game (solve-problem ["Matrix"]
+                                (partial best-path 2)
                                 (read-problem "problems/problem_3.json") 0))
 
   (println (apply str (:commands last-game)))
   (println "Powerscore: " (:powerscore last-game) "\tMovescore: " (:movescore last-game))
-  (submit-game "Georg bb" last-game)
-  (pprint (tail-submissions #"Georg" 10))
+  (submit-game "Georg bk" last-game)
+  (pprint (tail-submissions #"Georg3" 11))
   )
 
