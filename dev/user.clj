@@ -80,8 +80,8 @@
   (reset! b (:board @game))
   :ok)
 
-(defn step-game-best! []
-  (swap! game (partial step (timed naive-placement) best-path))
+(defn step-game-best! [depth]
+  (swap! game (partial step (timed naive-placement) (partial best-path depth)))
   (reset! b (:board @game))
   :ok)
 
@@ -130,7 +130,7 @@
   (show-next-start-node!)
   (show-pruned-graph!)
   (step-game!)
-  (step-game-best!)
+  (step-game-best! 5)
 
 
   (show-next-start-node!)
@@ -142,8 +142,9 @@
   (init-but-keep-commands! p0 0)
   (micro-step!)
 
-  (best-path @game {:members #{[0 0]}, :pivot [1 0]} {:members #{[1 24]}, :pivot [1 23]})
-  (best-path @game {:members #{[0 0]}, :pivot [0 0]} {:members #{[9 9]}, :pivot [9 9]})
+  (best-path 5 @game {:members #{[0 0]}, :pivot [1 0]} {:members #{[1 24]}, :pivot [1 23]})
+
+  (best-path 10 @game {:members #{[0 0]}, :pivot [0 0]} {:members #{[9 9]}, :pivot [9 9]})
   (stupid-path @game {:members #{[0 0]}, :pivot [0 0]} {:members #{[9 9]}, :pivot [9 9]})
 
 

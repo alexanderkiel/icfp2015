@@ -193,15 +193,15 @@
       nil)
   )
 
-(defn- traverse [graph phrases target-location node visited path score phrase]
+(defn- traverse [graph phrases target-location depth node visited path score phrase]
   (if phrase
     (if-let [[end vis'] (walk-graph graph visited node phrase)]
       (let [path' (apply conj path (:string (phrases phrase)))
             score' (+ (:score (phrases phrase)) score)
             children
-            (map #(traverse graph phrases target-location
+            (map #(traverse graph phrases target-location (dec depth)
                             end vis' path' score' %
-                         ) (cons nil (keys phrases)))]
+                         ) (if (< depth 1) [nil] (cons nil (keys phrases))))]
         (max-by second children))
       [[] 0])  ; can not apply leave
     (if-let [restpath (finish-path graph visited node target-location)] ; try direct
@@ -214,11 +214,11 @@
 
 (s/defn best-path
   "Calculates the best path"
-  [{:keys [board graphs start-nodes phrases] :as game} :- Game, unit :- Unit, target-location :- Unit]
+  [ depth :- Int, {:keys [board graphs start-nodes phrases] :as game} :- Game, unit :- Unit, target-location :- Unit]
   (let [start-pos (start-nodes unit)
         graph (graphs unit)
         children
-          (map #(traverse graph phrases target-location start-pos #{} [] 0 % )
+          (map #(traverse graph phrases target-location depth start-pos #{} [] 0 % )
                (cons nil (keys phrases)))
         [best-path best-score] (max-by second children)]
     (println "path-score: " best-score)
