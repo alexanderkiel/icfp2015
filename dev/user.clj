@@ -167,16 +167,17 @@
 (defn parse-date [date]
   (f/parse (f/formatters :date-time) date))
 
-(defn tail-submissions [tag-regex n]
+(defn tail-submissions [problem-id tag-regex n]
   (->> (-> @(http/get "https://davar.icfpcontest.org/teams/305/solutions"
                       {:as :text
                        :basic-auth ["" (System/getenv "API_TOKEN")]})
            (:body)
            (json/read-str :key-fn keyword))
        (map #(update % :createdAt parse-date))
+       (filter #(= problem-id (:problemId %)))
+       (filter #(re-find tag-regex (:tag %)))
        (sort-by :createdAt)
        (reverse)
-       (filter #(re-find tag-regex (:tag %)))
        (take n)))
 
 (defn submit-game [tag game]
@@ -230,7 +231,10 @@
          (partial best-path 5)
          ;stupid-path
          "Alex Auto (partial best-path 5)"
-         (read-problem "problems/problem_8.json"))
+         (read-problem "problems/problem_4.json"))
+
+  (count (:sourceSeeds (read-problem "problems/problem_4.json")))
+  (pprint (tail-submissions 13 #"." 2))
   )
 
 
