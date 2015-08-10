@@ -127,8 +127,10 @@
   :ok)
 
 (comment
-  (def p0 (read-problem "problems/problem_1.json"))
+  (def p0 (read-problem "problems/problem_3.json"))
   (init-game! ["Ei!","ia! ia!", "r'lyeh", "yuggoth"] p0 0)
+  (show-game!)
+  (step-game-best! 5)
 
   (:sourceSeeds p0)
 
@@ -237,6 +239,24 @@
 
 
 (comment
+; ------- GEORGS SUBMIT AREA
+  (def p0 (read-problem "problems/problem_1.json"))
+  (init-game! to-try p0 0)
+  (set! *print-length* 1000)
+  (pprint (:phrases @game))
+
+  (set! *print-length* 20)
+  (let [game (solve-problem ["Ei!","ia! ia!", "r'lyeh", "yuggoth","eee" "!!!"]
+                            (partial best-path 6)
+                            (read-problem "problems/problem_1.json") 0)]
+    (println (apply str (:commands game)))
+    (println "Powerscore: " (:powerscore game) "\tMovescore: " (:movescore game))
+    ;(submit-game "Georg 1 Test" game)
+    )
+    (pprint (tail-submissions #"Georg 1 Test" 1))
+
+  ; ---- Phrase test
+
   (def to-try ["Ron"
                "Tony"
                "Leslie"
@@ -254,19 +274,11 @@
                "Planet 10"
                "monkeyboy!"
                "Yuggoth"])
-
-
-  (def p0 (read-problem "problems/problem_1.json"))
-  (init-game! to-try p0 0)
-  (set! *print-length* 1000)
-  (pprint (:phrases @game))
-
-  (set! *print-length* 20)
-  (let [game (solve-problem ["Ei!","ia! ia!", "r'lyeh", "yuggoth"]
+    (let [game (solve-problem ["ICFP"]
                             (partial best-path 5)
-                            (read-problem "problems/problem_1.json") 0)]
-    (apply str (:commands game))
-    (submit-game "Georg 1 Test" game)
+                            (read-problem "problems/problem_3.json") 0)]
+    (println (apply str (:commands game)))
+    (println "Powerscore: " (:powerscore game) "\tMovescore: " (:movescore game))
+    ;(submit-game "Georg 1 Test" game)
     )
-    (pprint (tail-submissions #"Georg 1 Test" 1))
   )
