@@ -129,7 +129,6 @@
         path (ga/shortest-path graph start-pos target-location)
         non-locking-cmds (map #(:cmd (apply l/label graph %)) (g/out-edges graph target-location))
         locking-cmd (first (apply disj #{:w :e :se :sw} non-locking-cmds))]
-    (print unit start-pos target-location)
     (conj (vec (map (fn [edge] (cmd-to-letter (:cmd (apply l/label graph edge))))
                           (partition 2 1 path)))
           (cmd-to-letter locking-cmd))))
@@ -221,7 +220,6 @@
           (map #(traverse graph phrases target-location depth start-pos #{} [] 0 % )
                (cons nil (keys phrases)))
         [best-path best-score] (max-by second children)]
-    (println "path-score: " best-score)
     best-path
     )
   )
