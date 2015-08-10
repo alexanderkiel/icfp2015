@@ -65,9 +65,9 @@
 
   (let [argmap (apply hash-map args)
         problemfile (get argmap "-f" "problems/problem_0.json")
-        seedIdx (get argmap "-s" 0)
+        seedIdx (read-string (get argmap "-s" "0"))
         phrases (get argmap "-p" ["Ei!", "ia! ia!", "r'lyeh", "yuggoth","Planet 10"])
-        depth (get argmap "-d" 5)
+        depth (read-string (get argmap "-d" "5"))
         simple (get argmap "-simple" false)
         submit (get argmap "-submit" false)
         name (get argmap "-name" "Georg Script")

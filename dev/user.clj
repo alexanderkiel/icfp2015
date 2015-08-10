@@ -271,13 +271,13 @@
                "Cocke"
                "Hopcroft"                                   ; not found
                "Backus"
-               "Bigboote"
+               "Bigboote"                                   ; not found 1
                "Planet 10"                                  ; !Juhu
                "monkeyboy!"                                 ; not found
                ])
 
   (def p0 (read-problem "problems/problem_3.json"))
-  (init-game! ["Planet 10" ] p0 0)
+  (init-game! ["Backus" ] p0 0)
   (show-game!)
   (step-game-best! 5)
   (:powerscore @game)
@@ -291,6 +291,6 @@
   (println (apply str (:commands last-game)))
   (println "Powerscore: " (:powerscore last-game) "\tMovescore: " (:movescore last-game))
   (submit-game "Georg bb" last-game)
-  (pprint (tail-submissions #"Georg" 3))
+  (pprint (tail-submissions #"Georg" 10))
   )
 
