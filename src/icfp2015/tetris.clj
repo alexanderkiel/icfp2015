@@ -9,7 +9,8 @@
             [loom.alg :as ga]
             [loom.alg-generic :as alg-generic]
             [loom.label :as l]
-            [icfp2015.core :refer :all]))
+            [icfp2015.core :refer :all]
+            [clojure.set :as set]))
 
 ;; ---- Probability stuff -----------------------------------------------------
 
@@ -129,9 +130,9 @@
         path (ga/shortest-path graph start-pos target-location)
         non-locking-cmds (map #(:cmd (apply l/label graph %)) (g/out-edges graph target-location))
         locking-cmd (first (apply disj #{:w :e :se :sw} non-locking-cmds))]
-    (conj (vec (map (fn [edge] (cmd-to-letter (:cmd (apply l/label graph edge))))
-                          (partition 2 1 path)))
-          (cmd-to-letter locking-cmd))))
+    [(conj (vec (map (fn [edge] (cmd-to-letter (:cmd (apply l/label graph edge))))
+                     (partition 2 1 path)))
+           (cmd-to-letter locking-cmd)), path]))
 
 ;; ---- Phrases ------------------------------------------------------------------
 
@@ -186,9 +187,9 @@
       nil
       (let [non-locking-cmds (map #(:cmd (apply l/label graph %)) (g/out-edges graph target-location))
             locking-cmd (first (apply disj #{:w :e :se :sw} non-locking-cmds))]
-        (conj (vec (map (fn [edge] (cmd-to-letter (:cmd (apply l/label graph edge))))
-                        (partition 2 1 path)))
-              (cmd-to-letter locking-cmd)))
+        [(conj (vec (map (fn [edge] (cmd-to-letter (:cmd (apply l/label graph edge))))
+                         (partition 2 1 path)))
+               (cmd-to-letter locking-cmd) \newline) (set/union visited (rest path))])
       )
       nil)
   )
@@ -203,10 +204,10 @@
                             end vis' path' score' %
                          ) (if (< depth 1) [nil] (cons nil (keys phrases))))]
         (max-by second children))
-      [[] 0])  ; can not apply leave
-    (if-let [restpath (finish-path graph visited node target-location)] ; try direct
-      [(apply conj path restpath) score]
-      [[] 0])  ; could not finish leave
+      [[] -1 #{}])  ; can not apply leave
+    (if-let [[restpath vis'] (finish-path graph visited node target-location)] ; try direct
+      [(apply conj path restpath) score vis']
+      [[] -1 #{}])  ; could not finish leave
     )
   )
 
@@ -215,9 +216,8 @@
   [ {:keys [board graphs start-nodes phrases] :as game} :- Game,
    unit :- Unit, target-location :- Unit]
   (let [start-pos (start-nodes unit)
-        graph (graphs unit)
-        restpath (finish-path graph #{} start-pos target-location)]
-    restpath
+        graph (graphs unit)]
+    (finish-path graph #{} start-pos target-location)
     ))
 
 (s/defn best-path
@@ -227,11 +227,11 @@
   (let [start-pos (start-nodes unit)
         graph (graphs unit)
         children
-          (map #(traverse graph phrases target-location depth start-pos #{} [] 0 % )
+          (map #(traverse graph phrases target-location depth start-pos #{} [] -1 % )
                (cons nil (keys phrases)))
-        [best-path best-score] (max-by second children)]
+        [best-path best-score visited] (max-by second children)]
     (log/debug "Best score path" best-score)
-    best-path
+    [best-path visited]
     )
   )
 
@@ -263,9 +263,11 @@
   (if-let [unit (first unit-stack)]
     (if (valid? board (start-nodes unit))
       (let [pruned-game (prune-game game unit)
-           end-pos (placer pruned-game unit)]
+           end-pos (placer pruned-game unit)
+           [path visited] (path-gen pruned-game unit end-pos)]
        (-> (update game :board #(lock-unit % end-pos))
-           (update :commands #(into % (path-gen pruned-game unit end-pos)))
+           (assoc-in  [:board  :marked] (mapcat :members visited))
+           (update :commands #(into % path))
            (update :unit-stack rest)))
       (assoc game :finished true))
     (assoc game :finished true)))

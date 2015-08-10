@@ -67,6 +67,10 @@
   "A placer calculates an end position (unit) of a unit in game."
   (s/=> Unit Game Unit))
 
+(def PathAndVisited
+[(s/one [Unit] "units")
+ (s/one Set "visited")])
+
 (def PathGen
   "A path generator calculates path from start to end of a unit."
-  (s/=> Unit Game Unit Unit))
+  (s/=> [PathAndVisited Game Unit Unit]))

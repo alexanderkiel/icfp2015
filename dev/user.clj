@@ -269,6 +269,4 @@
     (submit-game "Georg 1 Test" game)
     )
     (pprint (tail-submissions #"Georg 1 Test" 1))
-
-
   )
