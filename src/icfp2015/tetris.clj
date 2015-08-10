@@ -150,12 +150,13 @@
 
 
 (defn walk-graph
-  "goes from start with cmds along true"
+  "goes from start with cmds through graph"
   [g visited start cmds]
   (let [moveable
         (fn [loc cmd]
           (if-let [options (map (fn [edge] [(:cmd (apply l/label g edge)), edge]) (g/out-edges g loc))]
-            (some #(when (= cmd (first %)) (second %)) options) nil
+            (some #(when (= cmd (first %)) (second %)) options)
+            nil
             )
           )]
     (loop [node start
@@ -163,7 +164,7 @@
            vis  (conj visited start)]
       (if-let [cmd (first cmds)]
         (if-let [[_ tgt] (moveable node cmd)]
-          (if (vis tgt) nil (recur tgt (rest cmds) (conj visited node)))
+          (if (vis tgt) nil (recur tgt (rest cmds) (conj vis tgt)))
           nil)
         [node vis]))))
 
@@ -210,10 +211,19 @@
   )
 
 
+(s/defn test-path                                      ; the same as stupid path
+  [ {:keys [board graphs start-nodes phrases] :as game} :- Game,
+   unit :- Unit, target-location :- Unit]
+  (let [start-pos (start-nodes unit)
+        graph (graphs unit)
+        restpath (finish-path graph #{} start-pos target-location)]
+    restpath
+    ))
 
 (s/defn best-path
   "Calculates the best path"
-  [ depth :- Int, {:keys [board graphs start-nodes phrases] :as game} :- Game, unit :- Unit, target-location :- Unit]
+  [ depth :- Int, {:keys [board graphs start-nodes phrases] :as game} :- Game,
+   unit :- Unit, target-location :- Unit]
   (let [start-pos (start-nodes unit)
         graph (graphs unit)
         children

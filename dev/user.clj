@@ -80,6 +80,12 @@
   (reset! b (:board @game))
   :ok)
 
+(defn step-game-test! []
+  (swap! game (partial step (timed naive-placement) test-path))
+  (reset! b (:board @game))
+  :ok)
+
+
 (defn step-game-best! [depth]
   (swap! game (partial step (timed naive-placement) (partial best-path depth)))
   (reset! b (:board @game))
@@ -132,7 +138,7 @@
   (show-pruned-graph!)
   (step-game!)
   (step-game-best! 5)
-
+  (step-game-test!)
 
   (show-next-start-node!)
   (step-game2!)
@@ -249,16 +255,20 @@
                "monkeyboy!"
                "Yuggoth"])
 
-  (set! *print-length* 1000)
 
   (def p0 (read-problem "problems/problem_1.json"))
   (init-game! to-try p0 0)
+  (set! *print-length* 1000)
   (pprint (:phrases @game))
 
-  (let [game (solve-problem ["ICFP"]
+  (set! *print-length* 20)
+  (let [game (solve-problem ["Ei!","ia! ia!", "r'lyeh", "yuggoth"]
                             (partial best-path 5)
-                            (read-problem "problems/problem_2.json") 0)]
-    (apply str (:commands game)))
+                            (read-problem "problems/problem_1.json") 0)]
+    (apply str (:commands game))
+    (submit-game "Georg 1 Test" game)
+    )
+    (pprint (tail-submissions #"Georg 1 Test" 1))
 
 
   )
