@@ -1,14 +1,8 @@
-# icfp2015
+# ICFP 2015
 
-A Clojure library designed to ... well, that part is up to you.
+alexanderkiel@gmx.net
+georg.martius@ist.ac.at
 
 ## Usage
 
-FIXME
-
-## License
-
-Copyright © 2015 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+    ./play_game.sh
