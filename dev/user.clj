@@ -80,6 +80,12 @@
   (reset! b (:board @game))
   :ok)
 
+(defn step-game-best! []
+  (swap! game (partial step (timed naive-placement) best-path))
+  (reset! b (:board @game))
+  :ok)
+
+
 (defn play-game! []
   (swap! game (partial play naive-placement stupid-path))
   :ok)
@@ -116,13 +122,15 @@
   :ok)
 
 (comment
+  (def p0 (read-problem "problems/problem_large.json"))
   (def p0 (read-problem "problems/problem_0.json"))
   (init-game! p0 0)
-  (add-phrases! ["Ei!","blast"])
+  (add-phrases! ["Ei!","ia! ia!", "r'lyeh", "yuggoth"])
 
   (show-next-start-node!)
   (show-pruned-graph!)
   (step-game!)
+  (step-game-best!)
 
 
   (show-next-start-node!)
@@ -134,7 +142,9 @@
   (init-but-keep-commands! p0 0)
   (micro-step!)
 
+  (best-path @game {:members #{[0 0]}, :pivot [1 0]} {:members #{[1 24]}, :pivot [1 23]})
   (best-path @game {:members #{[0 0]}, :pivot [0 0]} {:members #{[9 9]}, :pivot [9 9]})
+  (stupid-path @game {:members #{[0 0]}, :pivot [0 0]} {:members #{[9 9]}, :pivot [9 9]})
 
 
   (let [u (second (first (:start-nodes @game)))]
@@ -192,6 +202,6 @@
 
   (def g (g/digraph [1 2] [2 3] {3 [4] 5 [6 7]} 7 8 9))
   (g/out-edges g 5)
-  (ga/shortest-path g 1 3)
+  (ga/shortest-path g 1 5)
 
   )
