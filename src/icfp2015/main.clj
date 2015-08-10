@@ -56,17 +56,14 @@
                           :basic-auth ["" (System/getenv "API_TOKEN")]})]
     (:status resp)))
 
-(defn solve-problem [phrases path-gen problem seed-idx submit name]
+(defn solve-problem [phrases path-gen problem seed-idx]
   (let [gameinit (add-phrases (prepare-game problem seed-idx) phrases)
         game (play naive-placement path-gen gameinit)]
-    (println (apply str (:commands game)))
-    (println "Powerscore: " (:powerscore game) "\tMovescore: " (:movescore game))
-    (if (not (= 0 submit))
-      (let [_ (println "Submitting...")]
-        (submit-game name game)
-    ))))
+    game)
+    )
 
 (defn solve [phrases path-gen problem name]
+  (println "Number of seeds: " (count (:sourceSeeds problem)))
   (doseq [game (pmap (partial solve-problem phrases path-gen problem)
                      (range (count (:sourceSeeds problem))))]
     (let [_ (println "Submitting...")]
@@ -92,9 +89,15 @@
     (println argmap)
     (println seedIdx)
     (if (> seedIdx -1)
-      (solve-problem phrases path-gen problem seedIdx submit name)
+      (let [game (solve-problem phrases path-gen problem seedIdx)]
+        (println (apply str (:commands game)))
+        (println "Powerscore: " (:powerscore game) "\tMovescore: " (:movescore game))
+        (if (not (= 0 submit))
+          (let [_ (println "Submitting...")]
+            (submit-game name game)
+            )))
       (solve phrases path-gen problem name)
-           )
+      )
     )
   )
 

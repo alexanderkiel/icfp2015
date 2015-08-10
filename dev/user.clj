@@ -167,17 +167,16 @@
 (defn parse-date [date]
   (f/parse (f/formatters :date-time) date))
 
-(defn tail-submissions [problem-id tag-regex n]
+(defn tail-submissions [tag-regex n]
   (->> (-> @(http/get "https://davar.icfpcontest.org/teams/305/solutions"
                       {:as :text
                        :basic-auth ["" (System/getenv "API_TOKEN")]})
            (:body)
            (json/read-str :key-fn keyword))
        (map #(update % :createdAt parse-date))
-       (filter #(= problem-id (:problemId %)))
-       (filter #(re-find tag-regex (:tag %)))
        (sort-by :createdAt)
        (reverse)
+       (filter #(re-find tag-regex (:tag %)))
        (take n)))
 
 (defn submit-game [tag game]
@@ -238,8 +237,8 @@
 ; ------- GEORGS SUBMIT AREA
 (comment
 
-  (def p0 (read-problem "problems/problem_8.json"))
-  (init-game! to-try p0 0)
+  (def p0 (read-problem "problems/problem_2.json"))
+  (init-game! ["Ei!","ia! ia!", "r'lyeh", "yuggoth","Planet 10"] p0 0)
   (set! *print-length* 1000)
   (pprint (:phrases @game))
 
@@ -274,11 +273,15 @@
                "Matrix"
                ])
 
-  (def p0 (read-problem "problems/problem_3.json"))
+  (def p0 (read-problem "problems/problem_9.json"))
+  (init-game! ["Ei!","ia! ia!", "r'lyeh", "yuggoth","Planet 10"] p0 3)
   (init-game! ["Leslie"] p0 0)
   (init-game! to-try p0 0)
   (show-game!)
   (step-game-best! 5)
+
+  (step-game!)
+  (play-game-best! 5)
   (:powerscore @game)
   (apply str (:commands @game))
   (:sourceSeeds p0)
@@ -292,6 +295,6 @@
   (println (apply str (:commands last-game)))
   (println "Powerscore: " (:powerscore last-game) "\tMovescore: " (:movescore last-game))
   (submit-game "Georg bk" last-game)
-  (pprint (tail-submissions 22 #"Georg3" 11))
+  (pprint (tail-submissions #"Georg22" 11))
   )
 

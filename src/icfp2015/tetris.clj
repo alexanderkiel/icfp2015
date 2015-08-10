@@ -236,7 +236,8 @@
                (cons nil (keys phrases)))
         [best-path best-score visited] (max-by second children)]
     (if (= (- 1) best-score)
-      (log/debug "BestPath FAILED!!!!" best-score)
+      (do (log/debug "BestPath FAILED!!!!" best-score)
+          [[(move-south-east start-pos)] (- 1) #{}])
       [best-path best-score visited])))
 
 
