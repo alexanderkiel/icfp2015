@@ -66,8 +66,8 @@
 
 (def game (atom {}))
 
-(defn init-game! [problem seed-idx]
-  (reset! game (prepare-game problem seed-idx))
+(defn init-game! [phrases problem seed-idx]
+  (reset! game (add-phrases (prepare-game problem seed-idx) phrases))
   :ok)
 
 (defn init-but-keep-commands! [problem seed-idx]
@@ -102,10 +102,6 @@
   (reset! b (:board @game))
   :ok)
 
-(defn add-phrases! [phrases]
-  (swap! game #(add-phrases % phrases))
-  (:phrases @game))
-
 (defn micro-step! []
   (swap! game micro-step)
   (reset! b (:board @game))
@@ -125,10 +121,9 @@
   :ok)
 
 (comment
-  (def p0 (read-problem "problems/problem_0.json"))
-  (init-game! p0 0)
+  (def p0 (read-problem "problems/problem_1.json"))
+  (init-game! ["Ei!","ia! ia!", "r'lyeh", "yuggoth"] p0 0)
 
-  (add-phrases! ["Ei!","ia! ia!", "r'lyeh", "yuggoth"])
   (:sourceSeeds p0)
 
   (show-next-start-node!)
