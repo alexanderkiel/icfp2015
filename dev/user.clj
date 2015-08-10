@@ -225,4 +225,40 @@
          ;(partial best-path 5)
          stupid-path
          (read-problem "problems/problem_1.json"))
+
+
+  )
+
+
+(comment
+  (def to-try ["Ron"
+               "Tony"
+               "Leslie"
+               "Barb"
+               "Looks like our handler isn't here yet."
+               "Robin"
+               "ICFP"
+               "Excellent!"
+               "The fate of the world is in your hands."
+               "Conway"
+               "Cocke"
+               "Hopcroft"
+               "Backus"
+               "Bigboote"
+               "Planet 10"
+               "monkeyboy!"
+               "Yuggoth"])
+
+  (set! *print-length* 1000)
+
+  (def p0 (read-problem "problems/problem_1.json"))
+  (init-game! to-try p0 0)
+  (pprint (:phrases @game))
+
+  (let [game (solve-problem ["ICFP"]
+                            (partial best-path 5)
+                            (read-problem "problems/problem_2.json") 0)]
+    (apply str (:commands game)))
+
+
   )

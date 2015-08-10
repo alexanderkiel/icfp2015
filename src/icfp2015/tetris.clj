@@ -220,6 +220,7 @@
           (map #(traverse graph phrases target-location depth start-pos #{} [] 0 % )
                (cons nil (keys phrases)))
         [best-path best-score] (max-by second children)]
+    (log/debug "Best score path" best-score)
     best-path
     )
   )
