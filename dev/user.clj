@@ -167,16 +167,17 @@
 (defn parse-date [date]
   (f/parse (f/formatters :date-time) date))
 
-(defn tail-submissions [tag-regex n]
+(defn tail-submissions [problem-id tag-regex n]
   (->> (-> @(http/get "https://davar.icfpcontest.org/teams/305/solutions"
                       {:as :text
                        :basic-auth ["" (System/getenv "API_TOKEN")]})
            (:body)
            (json/read-str :key-fn keyword))
        (map #(update % :createdAt parse-date))
+       (filter #(= problem-id (:problemId %)))
+       (filter #(re-find tag-regex (:tag %)))
        (sort-by :createdAt)
        (reverse)
-       (filter #(re-find tag-regex (:tag %)))
        (take n)))
 
 (defn submit-game [tag game]
@@ -193,9 +194,9 @@
 
 (comment
   (submit-game "Alex" @game)
-  (pprint (tail-submissions #"Alex" 2))
+  (pprint (tail-submissions 0 #"Alex" 2))
   (submit-game "Georg" @game) /
-  (pprint (tail-submissions #"Georg" 6))
+  (pprint (tail-submissions 0 #"Georg" 6))
   )
 
 (defn solve-problem [phrases path-gen problem seed-idx]
@@ -214,12 +215,12 @@
   (play-game!)
   (play-game-best! 5)
   (submit-game "Alex" @game)
-  (pprint (tail-submissions #"Alex" 2))
+  (pprint (tail-submissions 22 #"." 10))
   )
 
 (comment
   (->> (solve-problem
-         [#_"Ei!", "ia! ia!", "r'lyeh", "yuggoth"]
+         [#_"Ei!", "ia! ia!", "r'lyeh", "yuggoth","Planet 10"]
          ;(partial best-path 5)
          stupid-path
          (read-problem "problems/problem_1.json")
@@ -230,7 +231,7 @@
          (partial best-path 5)
          ;stupid-path
          "Alex Auto (partial best-path 5)"
-         (read-problem "problems/problem_19.json"))
+         (read-problem "problems/problem_8.json"))
   )
 
 
@@ -250,7 +251,7 @@
     (println "Powerscore: " (:powerscore game) "\tMovescore: " (:movescore game))
     ;(submit-game "Georg 1 Test" game)
     )
-    (pprint (tail-submissions #"Georg 1 Test" 1))
+    (pprint (tail-submissions 22 #"Georg 1 Test" 1))
 
   ; ---- Phrase test
 
@@ -291,6 +292,6 @@
   (println (apply str (:commands last-game)))
   (println "Powerscore: " (:powerscore last-game) "\tMovescore: " (:movescore last-game))
   (submit-game "Georg bk" last-game)
-  (pprint (tail-submissions #"Georg3" 11))
+  (pprint (tail-submissions 22 #"Georg3" 11))
   )
 
