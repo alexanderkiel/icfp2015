@@ -25,13 +25,11 @@
   (and (< -1 x width) (< -1 y height)))
 
 (defn- to-abc [[x y]]
-  (let [a (- x (quot (- y (if (even? y) 0 1)) 2))
-        c y
-        b (- (- a) c)]
-    [a b c]))
+  (let [a (- x (quot (if (even? y) y (dec y)) 2))]
+    [a (- (+ a y)) y]))
 
 (defn- from-abc [[a _ c]]
-  [(+ a (quot (- c (if (even? c) 0 1)) 2)) c])
+  [(+ a (quot (if (even? c) c (dec c)) 2)) c])
 
 (s/defn global-2-local :- Cell [[px py] :- Cell [gx gy] :- Cell]
   [(+ (- gx px) (if (even? py) 0 (if (even? gy) (- 1) 0))) (- gy py)])
@@ -64,7 +62,11 @@
   (rotate-xf rotate-ccw-abc pivot))
 
 (s/defn neighbors :- [Cell]
-  [ [x y] :- Cell ]
-  (let [oddeven (if (even? y) (- 1) 1)]
-    [[(- x 1) y] [(+ x 1) y] [x (- y 1)] [x (+ y 1)] [(+ x oddeven) (+ y 1)] [(+ x oddeven) (- y 1)]]))
-
+  [[x y] :- Cell]
+  (let [incdec (if (even? y) dec inc)]
+    [[(dec x) y]
+     [(inc x) y]
+     [x (dec y)]
+     [x (inc y)]
+     [(incdec x) (inc y)]
+     [(incdec x) (dec y)]]))
