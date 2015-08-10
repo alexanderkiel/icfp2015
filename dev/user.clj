@@ -19,18 +19,6 @@
 (def b (atom {}))
 (add-watch b :send (fn [_ _ _ b] (put! server/ch b)))
 
-(defn find-bottom-nodes
-  "Finds six bottom nodes of board starting with first unit."
-  [board]
-  (let [g (graph board (first (:units board)))
-        nodes (g/nodes g)]
-    (->> (into []
-               (comp
-                 (remove-nodes-xf g :sw :se)
-                 (take 6))
-               nodes)
-         (assoc board :units))))
-
 (comment
   (def p0 (read-problem "problems/problem_0.json"))
   (reset! b (problem->board p0))
@@ -142,6 +130,7 @@
   (step-game-best! 5)
   (step-game-test!)
 
+
   (show-next-start-node!)
   (step-game2!)
   (show-game!)
@@ -159,7 +148,7 @@
 
 
   (let [u (second (first (:start-nodes @game)))]
-    (walk-graph (second (first (:graphs @game))) #{}  u [:w :w :sw]))
+    (walk-graph (second (first (:graphs @game))) #{} u [:w :w :sw]))
   (select-keys (swap! game spawn-next) [:board :unit-stack])
   (select-keys @game [:commands :board :unit-stack :finished])
   (select-keys @game [:commands :finished])
@@ -205,7 +194,7 @@
 (comment
   (submit-game "Alex" @game)
   (pprint (tail-submissions #"Alex" 2))
-  (submit-game "Georg" @game)/
+  (submit-game "Georg" @game) /
   (pprint (tail-submissions #"Georg" 6))
   )
 
@@ -213,14 +202,14 @@
   (let [game (add-phrases (prepare-game problem seed-idx) phrases)]
     (play naive-placement path-gen game)))
 
-(defn solve [phrases path-gen problem]
+(defn solve [phrases path-gen tag problem]
   (doseq [game (pmap (partial solve-problem phrases path-gen problem)
                      (range (count (:sourceSeeds problem))))]
-    (submit-game "Alex Auto" game)))
+    (submit-game tag game)))
 
 (comment
   (def p0 (read-problem "problems/problem_1.json"))
-  (init-game! ["Ei!","ia! ia!", "r'lyeh", "yuggoth"] p0 0)
+  (init-game! ["Ei!", "ia! ia!", "r'lyeh", "yuggoth"] p0 0)
   (:sourceSeeds p0)
   (play-game!)
   (play-game-best! 5)
@@ -229,12 +218,19 @@
   )
 
 (comment
-  (solve ["Ei!","ia! ia!", "r'lyeh", "yuggoth"]
+  (->> (solve-problem
+         [#_"Ei!", "ia! ia!", "r'lyeh", "yuggoth"]
          ;(partial best-path 5)
          stupid-path
-         (read-problem "problems/problem_1.json"))
+         (read-problem "problems/problem_1.json")
+         0)
+       (submit-game "Alex stupid-path"))
 
-
+  (solve ["Ei!", "ia! ia!", "r'lyeh", "yuggoth","Planet 10"]
+         (partial best-path 5)
+         ;stupid-path
+         "Alex Auto (partial best-path 5)"
+         (read-problem "problems/problem_19.json"))
   )
 
 
