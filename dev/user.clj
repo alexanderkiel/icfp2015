@@ -199,10 +199,28 @@
   (pprint (tail-submissions #"Georg" 6))
   )
 
+(defn solve-problem [phrases path-gen problem seed-idx]
+  (let [game (add-phrases (prepare-game problem seed-idx) phrases)]
+    (play naive-placement path-gen game)))
+
+(defn solve [phrases path-gen problem]
+  (doseq [game (pmap (partial solve-problem phrases path-gen problem)
+                     (range (count (:sourceSeeds problem))))]
+    (submit-game "Alex Auto" game)))
+
 (comment
+  (def p0 (read-problem "problems/problem_1.json"))
+  (init-game! ["Ei!","ia! ia!", "r'lyeh", "yuggoth"] p0 0)
+  (:sourceSeeds p0)
+  (play-game!)
+  (play-game-best! 5)
+  (submit-game "Alex" @game)
+  (pprint (tail-submissions #"Alex" 2))
+  )
 
-  (def g (g/digraph [1 2] [2 3] {3 [4] 5 [6 7]} 7 8 9))
-  (g/out-edges g 5)
-  (ga/shortest-path g 1 5)
-
+(comment
+  (solve ["Ei!","ia! ia!", "r'lyeh", "yuggoth"]
+         ;(partial best-path 5)
+         stupid-path
+         (read-problem "problems/problem_1.json"))
   )
