@@ -61,6 +61,8 @@
    :commands [Char]
    :finished Bool
    :phrases {[Cmd] Phrase}
+   :movescore Int
+   :powerscore Int
    })
 
 (def Placer
@@ -69,6 +71,7 @@
 
 (def PathAndVisited
 [(s/one [Unit] "units")
+ (s/one Int "powerscore")
  (s/one Set "visited")])
 
 (def PathGen

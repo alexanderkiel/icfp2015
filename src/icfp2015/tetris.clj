@@ -63,7 +63,9 @@
      :unit-stack (source-units problem seed)
      :commands []
      :finished false
-     :phrases {}}))
+     :phrases {}
+     :movescore 0
+     :powerscore 0}))
 
 
 ;; ---- Naive -----------------------------------------------------------------
@@ -132,7 +134,7 @@
         locking-cmd (first (apply disj #{:w :e :se :sw} non-locking-cmds))]
     [(conj (vec (map (fn [edge] (cmd-to-letter (:cmd (apply l/label graph edge))))
                      (partition 2 1 path)))
-           (cmd-to-letter locking-cmd)), path]))
+           (cmd-to-letter locking-cmd)), 0, path]))
 
 ;; ---- Phrases ------------------------------------------------------------------
 
@@ -189,7 +191,7 @@
             locking-cmd (first (apply disj #{:w :e :se :sw} non-locking-cmds))]
         [(conj (vec (map (fn [edge] (cmd-to-letter (:cmd (apply l/label graph edge))))
                          (partition 2 1 path)))
-               (cmd-to-letter locking-cmd) \newline) (set/union visited (rest path))])
+               (cmd-to-letter locking-cmd) \newline) 0 (set/union visited (rest path))])
       )
       nil)
   )
@@ -205,8 +207,8 @@
                          ) (if (< depth 1) [nil] (cons nil (keys phrases))))]
         (max-by second children))
       [[] -1 #{}])  ; can not apply leave
-    (if-let [[restpath vis'] (finish-path graph visited node target-location)] ; try direct
-      [(apply conj path restpath) score vis']
+    (if-let [[restpath _ vis'] (finish-path graph visited node target-location)] ; try direct
+      [(apply conj path restpath) (max 0 score) vis']
       [[] -1 #{}])  ; could not finish leave
     )
   )
@@ -230,10 +232,9 @@
           (map #(traverse graph phrases target-location depth start-pos #{} [] -1 % )
                (cons nil (keys phrases)))
         [best-path best-score visited] (max-by second children)]
-    (log/debug "Best score path" best-score)
-    [best-path visited]
-    )
-  )
+    (if (= (- 1) best-score)
+      (log/debug "BestPath FAILED!!!!" best-score)
+      [best-path best-score visited])))
 
 
 ;; ---- Game ------------------------------------------------------------------
@@ -264,11 +265,14 @@
     (if (valid? board (start-nodes unit))
       (let [pruned-game (prune-game game unit)
            end-pos (placer pruned-game unit)
-           [path visited] (path-gen pruned-game unit end-pos)]
+           [path pscore visited] (path-gen pruned-game unit end-pos)]
        (-> (update game :board #(lock-unit % end-pos))
            (assoc-in  [:board  :marked] (mapcat :members visited))
            (update :commands #(into % path))
-           (update :unit-stack rest)))
+           (update :unit-stack rest)
+           (update :powerscore #(+ pscore %))
+           (update :movescore #(+ (count (:members unit)) %)) ;Todo: add line score
+           ))
       (assoc game :finished true))
     (assoc game :finished true)))
 
