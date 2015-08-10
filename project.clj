@@ -17,4 +17,7 @@
               :dependencies [[org.clojure/tools.namespace "0.2.4"]
                              [criterium "0.4.3"]
                              [juxt/iota "0.1.2"]]
-              :global-vars {*print-length* 10}}})
+              :global-vars {*print-length* 10}}
+
+             :production
+             {:main icfp2015.main}})
