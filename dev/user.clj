@@ -85,9 +85,12 @@
   (reset! b (:board @game))
   :ok)
 
-
 (defn play-game! []
   (swap! game (partial play naive-placement stupid-path))
+  :ok)
+
+(defn play-game-best! [depth]
+  (swap! game (partial play naive-placement (partial best-path depth)))
   :ok)
 
 (defn step-game2! []
@@ -122,10 +125,11 @@
   :ok)
 
 (comment
-  (def p0 (read-problem "problems/problem_large.json"))
   (def p0 (read-problem "problems/problem_0.json"))
   (init-game! p0 0)
+
   (add-phrases! ["Ei!","ia! ia!", "r'lyeh", "yuggoth"])
+  (:sourceSeeds p0)
 
   (show-next-start-node!)
   (show-pruned-graph!)
@@ -138,6 +142,7 @@
   (show-game!)
 
   (play-game!)
+  (play-game-best! 5)
 
   (init-but-keep-commands! p0 0)
   (micro-step!)
