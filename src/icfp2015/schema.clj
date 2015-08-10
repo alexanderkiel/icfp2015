@@ -31,7 +31,8 @@
   {:width Int
    :height Int
    :filled Set
-   :units [Unit]})
+   :units [Unit]
+   (s/optional-key :marked) [Cell]})
 
 (def Problem
   {:id Int
