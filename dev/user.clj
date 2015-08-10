@@ -127,7 +127,7 @@
   :ok)
 
 (comment
-  (def p0 (read-problem "problems/problem_3.json"))
+  (def p0 (read-problem "problems/problem_4.json"))
   (init-game! ["Ei!","ia! ia!", "r'lyeh", "yuggoth"] p0 0)
   (show-game!)
   (step-game-best! 5)
@@ -238,15 +238,16 @@
   )
 
 
-(comment
 ; ------- GEORGS SUBMIT AREA
+(comment
+
   (def p0 (read-problem "problems/problem_1.json"))
   (init-game! to-try p0 0)
   (set! *print-length* 1000)
   (pprint (:phrases @game))
 
   (set! *print-length* 20)
-  (let [game (solve-problem ["Ei!","ia! ia!", "r'lyeh", "yuggoth","eee" "!!!"]
+  (let [game (solve-problem ["Ei!","ia! ia!", "r'lyeh", "yuggoth","Planet 10"]
                             (partial best-path 6)
                             (read-problem "problems/problem_1.json") 0)]
     (println (apply str (:commands game)))
@@ -257,28 +258,39 @@
 
   ; ---- Phrase test
 
-  (def to-try ["Ron"
-               "Tony"
+  (def to-try ["ICFP"                                       ;not found
+               "Ron"                                        ; is not
+               "Tony"                                       ; is not
                "Leslie"
                "Barb"
                "Looks like our handler isn't here yet."
                "Robin"
-               "ICFP"
-               "Excellent!"
+               "Excellent!"                                 ; is not
                "The fate of the world is in your hands."
-               "Conway"
+               "Conway"                                     ; is not
                "Cocke"
-               "Hopcroft"
+               "Hopcroft"                                   ; not found
                "Backus"
                "Bigboote"
-               "Planet 10"
-               "monkeyboy!"
-               "Yuggoth"])
-    (let [game (solve-problem ["ICFP"]
-                            (partial best-path 5)
-                            (read-problem "problems/problem_3.json") 0)]
-    (println (apply str (:commands game)))
-    (println "Powerscore: " (:powerscore game) "\tMovescore: " (:movescore game))
-    ;(submit-game "Georg 1 Test" game)
-    )
+               "Planet 10"                                  ; !Juhu
+               "monkeyboy!"                                 ; not found
+               ])
+
+  (def p0 (read-problem "problems/problem_3.json"))
+  (init-game! ["Planet 10" ] p0 0)
+  (show-game!)
+  (step-game-best! 5)
+  (:powerscore @game)
+
+
+
+  (def last-game (solve-problem ["Looks like our handler isn't here yet."]
+                                (partial best-path 3)
+                                (read-problem "problems/problem_3.json") 0))
+
+  (println (apply str (:commands last-game)))
+  (println "Powerscore: " (:powerscore last-game) "\tMovescore: " (:movescore last-game))
+  (submit-game "Georg bb" last-game)
+  (pprint (tail-submissions #"Georg" 3))
   )
+

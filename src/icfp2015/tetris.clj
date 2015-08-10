@@ -106,13 +106,15 @@
 ;{k, s, t, u, w, x}	rotate counter-clockwise
 ;\t, \n, \r	(ignored)
 
-(def cmd-to-letter {:w   \!
+(def cmd-to-letter {:w   \p                                   ;\! ;Todo: use ! again
                     :e   \e
                     :sw  \i
                     :se  \o
                     :cw  \r
                     :ccw \x
                     :noop \tab})
+
+
 (def letter-to-cmd
   (apply hash-map (concat (interleave [\p, \', \!, \., \0, \3] (repeat :w))
                           (interleave [\b, \c, \e, \f, \y, \2] (repeat :e))
@@ -142,6 +144,7 @@
 ;; ia! ia!
 ;; r'lyeh
 ;; yuggoth
+;; Planet 10
 
 (s/defn add-phrases :- Game
   [game phrasestrings]

@@ -34,7 +34,7 @@
 
 (defn tail-submissions [tag-regex n]
   (->> (-> @(http/get "https://davar.icfpcontest.org/teams/305/solutions"
-                      {:as :text
+                      {:as         :text
                        :basic-auth ["" (System/getenv "API_TOKEN")]})
            (:body)
            (json/read-str :key-fn keyword))
@@ -47,12 +47,12 @@
 (defn submit-game [tag game]
   (let [solution
         [{"problemId" (:problem-id game),
-          "seed" (:seed game),
-          "tag" tag,
-          "solution" (apply str (:commands game))}]
+          "seed"      (:seed game),
+          "tag"       tag,
+          "solution"  (apply str (:commands game))}]
         resp @(http/post "https://davar.icfpcontest.org/teams/305/solutions"
-                         {:body (json/write-str solution)
-                          :headers {"Content-Type" "application/json"}
+                         {:body       (json/write-str solution)
+                          :headers    {"Content-Type" "application/json"}
                           :basic-auth ["" (System/getenv "API_TOKEN")]})]
     (:status resp)))
 
@@ -62,27 +62,32 @@
 
 (defn -main [& args]
   (println "I C Frantic People")
-  (println args)
 
-  (let [problemfile  "problems/problem_0.json"
-        seedIdx 0
-        phrases ["Ei!","ia! ia!", "r'lyeh", "yuggoth"]
-        depth 5
-        simple false
+  (let [argmap (apply hash-map args)
+        problemfile (get argmap "-f" "problems/problem_0.json")
+        seedIdx (get argmap "-s" 0)
+        phrases (get argmap "-p" ["Ei!", "ia! ia!", "r'lyeh", "yuggoth","Planet 10"])
+        depth (get argmap "-d" 5)
+        simple (get argmap "-simple" false)
+        submit (get argmap "-submit" false)
+        name (get argmap "-name" "Georg Script")
         problem (read-problem problemfile)
-        submit false
-        name "Script"
         game (solve-problem phrases (if simple stupid-path (partial best-path depth))
-                            problemfile seedIdx)
+                            problem seedIdx)
         ]
+    (println argmap)
+    (println  phrases  simple depth problemfile seedIdx submit)
 
-  (if submit
-    (let [_ (println "Submitting...")]
-      (submit-game name game))
-    (println (apply str (:commands game))) )
-    ; (pprint (tail-submissions #"Georg" 6))
-   :ok
-  ))
+    (println (apply str (:commands game)))
+    (println "Powerscore: " (:powerscore game) "\tMovescore: " (:movescore game))
+
+    (if submit
+      (let [_ (println "Submitting...")]
+        (submit-game name game))
+      )
+    ;(pprint (tail-submissions #"Georg" 6))
+    )
+  )
 
 (comment
   (-main "pla"))
