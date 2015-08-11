@@ -3,7 +3,8 @@
             [icfp2015.core :refer :all]
             [juxt.iota :refer [given]]
             [schema.test :refer [validate-schemas]]
-            [loom.graph :as g]))
+            [loom.graph :as g]
+            [criterium.core :refer [quick-bench]]))
 
 (use-fixtures :once validate-schemas)
 
@@ -95,3 +96,11 @@
   (testing "Moves all upper filled cells downwards"
     (given (clear-lines (board 2 3 [0 0] [0 1] [1 1] [0 2] [1 2]))
       :filled := #{[0 2]})))
+
+(comment
+  (let [u (unit [1 0] [1 0])] (quick-bench (move-east u)))             ; 750 ns
+  (let [u (unit [1 0] [1 0])] (quick-bench (move-south-east u)))       ; 750 ns
+  (let [u (unit [1 0] [1 0] [1 1])] (quick-bench (move-south-east u))) ;   1 µs
+  (let [u (unit [1 0] [1 0] [1 1] [2 2] [2 3])]
+    (quick-bench (move-south-east u)))                                 ;   2 µs
+  )

@@ -24,9 +24,10 @@
    :units []})
 
 ;; ---- Commands --------------------------------------------------------------
+
 (defn- move [dir unit]
   (-> (update unit :pivot dir)
-      (update :members #(set (map dir %)))))
+      (update :members #(into #{} (map dir) %))))
 
 (s/defn move-east :- Unit [unit :- Unit]
   (move c/move-east unit))
